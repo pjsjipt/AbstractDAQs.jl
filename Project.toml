@@ -1,0 +1,13 @@
+name = "AbstractDAQ"
+uuid = "be525c41-cbe2-4c7e-9446-a8e259030c72"
+authors = ["Paulo Jabardo <pjabardo@ipt.br>"]
+version = "0.1.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+julia = "1.7"
+
+[targets]
+test = ["Test"]
