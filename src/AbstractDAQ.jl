@@ -27,6 +27,7 @@ daqaddinput(dev::AbstractDaqDevice, ...) = error("Not implemented for AbstractDa
 Start a synchronous data acquisition run.
 """
 daqacquire(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
+daqacquire!(dev::AbstractDaqDevice, arr) = error("Not implemented for AbstractDaqDevice")
 
 """
 `daqstart(dev, ...)`
@@ -41,6 +42,8 @@ daqstart(dev::AbstraceDaqDevice, ...) = error("Not implemented for AbstractDaqDe
 Wait to finish the data acquisition run and return the data.
 """
 daqread(dev::AbstraceDaqDevice) = error("Not implemented for AbstractDaqDevice")
+daqread!(dev::AbstractDaqDevice, arr) = error("Not implemented for AbstractDaqDevice")
+
 
 """
 `daqstop(dev)`
