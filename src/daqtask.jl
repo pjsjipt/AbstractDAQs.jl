@@ -16,11 +16,14 @@ mutable struct DAQTask #{DAQ <: AbstractDaqDevice}
     buffer::Matrix{UInt8}
     "Number of frames that can be stored in the buffer"
     buflen::Int
+    "Flag that can be used to communicate information"
+    flag::Int
     "Julia task (@async or @spawn)"
     task::Task
-    DAQTask() = new(false, false, false, 0, 0, zeros(UInt8,0,0), 0)
+    DAQTask() = new(false, false, false, 0, 0, zeros(UInt8,0,0), 0, 0)
     DAQTask(bwidth::Integer, blen::Integer) = new(false, false, false, 0, 0,
-                                                  zeros(UInt8, bwidth,blen), blen)
+                                                  zeros(UInt8, bwidth,blen),
+                                                  blen, 0)
 end
 
 """
@@ -115,6 +118,9 @@ function clearbuffer!(task::DAQTask, zeroit=true)
     return
 end
 
+
+taskflag(task::DAQTask) = task.flag
+settaskflag(task::DAQTask, flg) = task.flag=flg
 
 setdaqthread!(task::DAQTask, thrdstatus=false) = task.thrd=thrdstatus
 daqthread(task::DAQTask) = task.thrd
