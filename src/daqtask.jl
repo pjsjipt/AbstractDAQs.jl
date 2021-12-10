@@ -128,3 +128,10 @@ daqthread(task::DAQTask) = task.thrd
 
 setdaqtask!(task::DAQTask, jtsk::Task) = task.task = jtsk
 daqtask(task::DAQTask) = task.task
+
+function incidx!(task)
+    task.idx = (task.idx % size(task.buffer,2)) + 1
+    task.nread += 1
+    return task.idx
+end
+

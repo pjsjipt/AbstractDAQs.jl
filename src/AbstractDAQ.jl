@@ -3,8 +3,9 @@ module AbstractDAQ
 export AbstractDaqDevice
 export DAQTask, isreading, samplesread, samplesavailable, buffer
 export resizebuffer!, clearbuffer!, setdaqthread!, daqthread
-export setdaqtask!, daqtask
-export daqaddinput
+export setdaqtask!, daqtask, incidx!
+export daqaddinput, daqacquire, daqacquire!, daqstart, daqread, daqread!, daqstop
+export daqreference
 
 export TestDev
     
@@ -19,7 +20,7 @@ include("testdevice.jl")
 
 Add channels that should be acquired.
 """
-daqaddinput(dev::AbstractDaqDevice, ...) = error("Not implemented for AbstractDaqDevice")
+daqaddinput(dev::AbstractDaqDevice, args...)=error("Not implemented for AbstractDaqDevice")
 
 """
 `daqacquire(dev)`
@@ -34,14 +35,14 @@ daqacquire!(dev::AbstractDaqDevice, arr) = error("Not implemented for AbstractDa
 
 Initiate a data acquisition run asyncrhonously.
 """
-daqstart(dev::AbstraceDaqDevice, ...) = error("Not implemented for AbstractDaqDevice")
+daqstart(dev::AbstractDaqDevice, args...) = error("Not implemented for AbstractDaqDevice")
 
 """
 `daqread(dev)`
 
 Wait to finish the data acquisition run and return the data.
 """
-daqread(dev::AbstraceDaqDevice) = error("Not implemented for AbstractDaqDevice")
+daqread(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
 daqread!(dev::AbstractDaqDevice, arr) = error("Not implemented for AbstractDaqDevice")
 
 
@@ -50,7 +51,7 @@ daqread!(dev::AbstractDaqDevice, arr) = error("Not implemented for AbstractDaqDe
 
 Stop asynchronous data acquisition.
 """
-daqstop(dev::AbstraceDaqDevice) = error("Not implemented for AbstractDaqDevice")
+daqstop(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
 
 """
 `daqreference(dev)`
@@ -71,6 +72,9 @@ Generic configuration of data acquisition.
  * `avg` Number of samples that should be read and averaged for each sample.
 
 """
-daqconfig(dev::AbstractDaqDevice; freq, nsamples=0, time=0, avg=1) =
-    error("Not implemented for AbstractDaqDevice")
+#daqconfig(dev::AbstractDaqDevice; freq, nsamples=0, time=0, avg=1) =
+#    error("Not implemented for AbstractDaqDevice")
+
+
+
 end
