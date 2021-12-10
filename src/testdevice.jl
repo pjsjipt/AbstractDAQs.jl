@@ -1,7 +1,11 @@
 
 
 mutable struct TestDev <: AbstractDaqDevice
-    task::DAQTask{TestDev}
+    "Handling of background data acquisition"
+    task::DAQTask
+    nchans::Int
+    
+    
 end
 
     

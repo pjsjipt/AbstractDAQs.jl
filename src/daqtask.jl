@@ -1,7 +1,7 @@
 
 
 
-mutable struct DAQTask{DAQ <: AbstractDaqDevice}
+mutable struct DAQTask #{DAQ <: AbstractDaqDevice}
     "Is the daq device acquiring data?"
     isreading::Bool
     "Should the daq device stop acquiring data"
@@ -18,6 +18,9 @@ mutable struct DAQTask{DAQ <: AbstractDaqDevice}
     buflen::Int
     "Julia task (@async or @spawn)"
     task::Task
+    DAQTask() = new(false, false, false, 0, 0, zeros(UInt8,0,0), 0)
+    DAQTask(bwidth::Integer, blen::Integer) = new(false, false, false, 0, 0,
+                                                  zeros(UInt8, bwidth,blen), blen)
 end
 
 """
