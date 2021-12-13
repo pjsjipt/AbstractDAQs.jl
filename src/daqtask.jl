@@ -82,7 +82,7 @@ bufwidth(tsk) = size(tsk.buffer,1)
 Minimum number of frames in the buffer.
 
 """
-minbufsize(tsk) = minbuflen
+minbufsize(tsk) = tsk.minbuflen
 
 
 """
@@ -90,7 +90,7 @@ minbufsize(tsk) = minbuflen
 
 Set the minimum number of frames that a buffer can have.
 """
-setminbufsize!(tsk, len) = tsk.minbufsize = len
+setminbufsize!(tsk, len) = tsk.minbuflen = len
 
 """
     `resizebuffer!(tsk, [buflen, [fsize]])`
@@ -105,12 +105,11 @@ See [`clearbuffer!`](@ref) to clear the buffer.
 """
 function resizebuffer!(task::DAQTask{T}, buflen, fsize) where {T}
     nr,nc = size(task.buffer)
-
     buflen = max(buflen, minbufsize(task))
     if nr == fsize
         resizebuffer!(task, buflen)
     else
-        task.buffer = zeros(T, nr, buflen)
+        task.buffer = zeros(T, fsize, buflen)
         clearbuffer!(task, false)
     end
     

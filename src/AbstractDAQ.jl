@@ -22,7 +22,7 @@ include("testdevice.jl")
 
 Add channels that should be acquired.
 """
-daqaddinput(dev::AbstractDaqDevice, args...)=error("Not implemented for AbstractDaqDevice")
+daqaddinput(dev::AbstractDaqDevice)=error("Not implemented for AbstractDaqDevice")
 
 """
 `daqacquire(dev)`
@@ -30,14 +30,14 @@ daqaddinput(dev::AbstractDaqDevice, args...)=error("Not implemented for Abstract
 Start a synchronous data acquisition run.
 """
 daqacquire(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
-daqacquire!(dev::AbstractDaqDevice, arr) = error("Not implemented for AbstractDaqDevice")
+daqacquire!(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
 
 """
 `daqstart(dev, ...)`
 
 Initiate a data acquisition run asyncrhonously.
 """
-daqstart(dev::AbstractDaqDevice, args...) = error("Not implemented for AbstractDaqDevice")
+daqstart(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
 
 """
 `daqread(dev)`
@@ -45,7 +45,7 @@ daqstart(dev::AbstractDaqDevice, args...) = error("Not implemented for AbstractD
 Wait to finish the data acquisition run and return the data.
 """
 daqread(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
-daqread!(dev::AbstractDaqDevice, arr) = error("Not implemented for AbstractDaqDevice")
+daqread!(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
 
 
 """
@@ -61,7 +61,7 @@ daqstop(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
 Use a measurement point as a reference. Specific channels can be specified.
 
 """
-daqreference(dev::AbstractDaqDevice, ichans) =error("Not implemented for AbstractDaqDevice")
+daqreference(dev::AbstractDaqDevice) =error("Not implemented for AbstractDaqDevice")
 
 """
 `daqconfig(dev, freq, nsamples, time, avg)`
