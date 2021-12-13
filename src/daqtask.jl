@@ -1,7 +1,7 @@
 
 
 
-mutable struct DAQTask #{DAQ <: AbstractDaqDevice}
+mutable struct DAQTask{T} 
     "Is the daq device acquiring data?"
     isreading::Bool
     "Should the daq device stop acquiring data"
@@ -13,18 +13,19 @@ mutable struct DAQTask #{DAQ <: AbstractDaqDevice}
     "Current index in the buffer"
     idx::Int
     "Buffer to store data"
-    buffer::Matrix{UInt8}
-    "Number of frames that can be stored in the buffer"
-    buflen::Int
+    buffer::Matrix{T}
+    "Minimum number of frames that can be stored in the buffer"
+    minbuflen::Int
     "Flag that can be used to communicate information"
     flag::Int
     "Julia task (@async or @spawn)"
     task::Task
-    DAQTask() = new(false, false, false, 0, 0, zeros(UInt8,0,0), 0, 0)
-    DAQTask(bwidth::Integer, blen::Integer) = new(false, false, false, 0, 0,
-                                                  zeros(UInt8, bwidth,blen),
-                                                  blen, 0)
+    DAQTask{T}() where {T}  = new(false, false, false, 0, 0, zeros(T,0,0), 1, 0)
+    DAQTask{T}(bwidth::Integer, blen::Integer) where {T} = new(false, false, false, 0, 0,
+                                                               zeros(T, bwidth,blen),
+                                                               blen, 0)
 end
+
 
 """
 `isreading(tsk)`
@@ -45,7 +46,7 @@ See [`isreading`](@ref) to determine if reading is going on.
 samplesread(task::DAQTask) = task.nread
 
 
-samplesavailable(task::DAQTask) = task.nread > 0
+issamplesavailable(task::DAQTask) = task.nread > 0
 """
 `buffer(tsk)`
 
@@ -60,6 +61,37 @@ Return the buffer of the task for the i-th frame.
 """
 buffer(task::DAQTask, i) = view(task.buffer, :, i)
 
+
+"""
+`bufsize(tsk)`
+
+Returns the number of frames that can be stored in the buffer.
+"""
+bufsize(tsk) = size(tsk.buffer,2)
+
+"""
+`bufwidth(tsk)`
+
+Maximum length of each frame in the buffer.
+"""
+bufwidth(tsk) = size(tsk.buffer,1)
+
+"""
+`minbufsize(tsk)`
+
+Minimum number of frames in the buffer.
+
+"""
+minbufsize(tsk) = minbuflen
+
+
+"""
+`setminbufsize!(tsk, len)`
+
+Set the minimum number of frames that a buffer can have.
+"""
+setminbufsize!(tsk, len) = tsk.minbufsize = len
+
 """
     `resizebuffer!(tsk, [buflen, [fsize]])`
 
@@ -71,30 +103,31 @@ not provided, return to the default size `task.buflen` with present `fsize`.
 
 See [`clearbuffer!`](@ref) to clear the buffer.
 """
-function resizebuffer!(task::DAQTask, buflen, fsize)
+function resizebuffer!(task::DAQTask{T}, buflen, fsize) where {T}
     nr,nc = size(task.buffer)
 
+    buflen = max(buflen, minbufsize(task))
     if nr == fsize
         resizebuffer!(task, buflen)
     else
-        task.buffer = zeros(UInt8, nr, buflen)
+        task.buffer = zeros(T, nr, buflen)
         clearbuffer!(task, false)
     end
     
 end
 
-function resizebuffer!(task::DAQTask, buflen)
-
+function resizebuffer!(task::DAQTask{T}, buflen) where {T}
+    buflen = max(buflen, minbufsize(task))
     nr, nc = size(task.buffer)
     if buflen > nc
-        task.buffer = zeros(UInt8, nr, buflen)
+        task.buffer = zeros(T, nr, buflen)
         clearbuffer!(task, false)
     end
     return
 end
 
 
-resizebuffer!(task::DAQTask) = resizebuffer!(task, task.buflen, size(task.buffer,1))
+resizebuffer!(task::DAQTask{T}) where {T} = resizebuffer!(task, minbuflen(task), bufwidth(task))
 
 
 """
@@ -109,7 +142,7 @@ function clearbuffer!(task::DAQTask, zeroit=true)
     task.isreading = false # Let's make sure...
     task.stop = false
     task.thrd = false
-    task.nred = 0
+    task.nread = 0
     task.idx = 0
 
     if zeroit
@@ -120,7 +153,7 @@ end
 
 
 taskflag(task::DAQTask) = task.flag
-settaskflag(task::DAQTask, flg) = task.flag=flg
+settaskflag!(task::DAQTask, flg) = task.flag=flg
 
 setdaqthread!(task::DAQTask, thrdstatus=false) = task.thrd=thrdstatus
 daqthread(task::DAQTask) = task.thrd
