@@ -3,7 +3,8 @@ module AbstractDAQ
 export AbstractDaqDevice
 export DAQTask, isreading, samplesread, issamplesavailable, buffer
 export resizebuffer!, clearbuffer!, buflen, bufwidth, minbufsize, setminbufsize!
-export nextbuffer
+export nextbuffer!, initbuffer!
+export samplingfreq, settiming!
 export taskflag, settaskflag!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask

@@ -172,12 +172,30 @@ daqtask(task::DAQTask) = task.task
 
 
 """
+    `initbuffer!(task)`
+
+Initialize the task for data acquisition.
+
+"""
+function initbuffer!(task::DAQTask)
+    task.phead = 1
+    task.pnext = 0
+    task.pfull = false
+    task.nread = 0
+    task.isreading = false
+    task.stop = false
+    task.thrd = false
+    task.timing = (UInt64(0), UInt64(1), UInt64(1))
+    
+end
+
+"""
     `nextbuffer(task)`
 
 Returns the next slot in the buffer. The buffer is assumed to be circular so that
  new data will overwrite older data.
 """
-function nextbuffer(task::DAQTask)
+function nextbuffer!(task::DAQTask)
     if task.pnext == task.nt
         task.pfull = true
     end
@@ -193,8 +211,15 @@ end
 
     
 
+"""
+    `samplingfreq(task)`
 
+    Returns the measured sampling frequency achieved during data acquisition
 
+"""
+samplingfreq(task::DAQTask) = task.timing[3] / (1e-9 * (task.timing[2] - task.timing[1]))
+
+settiming!(task, t1, t2, n) = task.timing = (t1, t2, n)
 
 
 
