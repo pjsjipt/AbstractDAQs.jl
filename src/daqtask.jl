@@ -1,30 +1,64 @@
 
-
-
-mutable struct DAQTask{T} 
-    "Is the daq device acquiring data?"
-    isreading::Bool
-    "Should the daq device stop acquiring data"
-    stop::Bool
-    "Is the data acquisition using Julia managed threads?"
-    thrd::Bool
-    "Number of samples already read"
+mutable struct DAQTask{T}
+    "Number of elements `T` that can be stored in th buffer (frame length)"
+    nw::Int
+    "Buffer size - number of frames that can be stored"
+    nt::Int
+    "Index to the starting data position"
+    phead::Int
+    "Index of the last data position"
+    pnext::Int
+    "Is the buffer full?"
+    pfull::Bool
+    "Number of frames read"
     nread::Int
-    "Current index in the buffer"
-    idx::Int
-    "Buffer to store data"
-    buffer::Matrix{T}
-    "Minimum number of frames that can be stored in the buffer"
+    "Is the device reading frames?"
+    isreading::Bool
+    "Stop data acquisition?"
+    stop::Bool
+    "Are we using threads?"
+    thrd::Bool
+    "Initial time, end time (ns) and number of frames"
+    timing::NTuple{3, UInt64}
+    "Actual buffer where wach column corresponds to a frame"
+    buf::Matrix{T}
+    "Minimum buffer length"
     minbuflen::Int
-    "Flag that can be used to communicate information"
-    flag::Int
-    "Julia task (@async or @spawn)"
+    "`Task` object executing the data acquisition"
     task::Task
-    DAQTask{T}() where {T}  = new(false, false, false, 0, 0, zeros(T,0,0), 1, 0)
-    DAQTask{T}(bwidth::Integer, blen::Integer) where {T} = new(false, false, false, 0, 0,
-                                                               zeros(T, bwidth,blen),
-                                                               blen, 0)
+    DAQTask{T}() where {T} = new(0,0,1,0,false,0,false,false,false,
+                                 (UInt64(0),UInt64(0),UInt64(0)),
+                                 zeros(T,0,0), 1, Task(()->0))
 end
+
+
+"""
+`buflen(tsk)`
+
+Returns the number of frames that can be stored in the buffer.
+"""
+buflen(dtsk::DAQTask) = dtsk.nt
+
+"""
+`bufwidth(tsk)`
+
+Maximum length of each frame in the buffer.
+"""
+bufwidth(dtsk::DAQTask) = dtsk.nw
+
+"""
+`buffer(tsk)`
+
+Return the buffer of the task.
+"""
+buffer(dtsk::DAQTask) = dtsk.buf
+
+"""
+`buffer(tsk,i)`
+
+Return the buffer of the task for the i-th frame.
+"""
+buffer(dtsk::DAQTask, i) = view(dtsk.buf[:,i])
 
 
 """
@@ -47,34 +81,7 @@ samplesread(task::DAQTask) = task.nread
 
 
 issamplesavailable(task::DAQTask) = task.nread > 0
-"""
-`buffer(tsk)`
 
-Return the buffer of the task.
-"""
-buffer(task::DAQTask) = task.buffer
-
-"""
-`buffer(tsk,i)`
-
-Return the buffer of the task for the i-th frame.
-"""
-buffer(task::DAQTask, i) = view(task.buffer, :, i)
-
-
-"""
-`bufsize(tsk)`
-
-Returns the number of frames that can be stored in the buffer.
-"""
-bufsize(tsk) = size(tsk.buffer,2)
-
-"""
-`bufwidth(tsk)`
-
-Maximum length of each frame in the buffer.
-"""
-bufwidth(tsk) = size(tsk.buffer,1)
 
 """
 `minbufsize(tsk)`
@@ -84,7 +91,6 @@ Minimum number of frames in the buffer.
 """
 minbufsize(tsk) = tsk.minbuflen
 
-
 """
 `setminbufsize!(tsk, len)`
 
@@ -92,41 +98,6 @@ Set the minimum number of frames that a buffer can have.
 """
 setminbufsize!(tsk, len) = tsk.minbuflen = len
 
-"""
-    `resizebuffer!(tsk, [buflen, [fsize]])`
-
-Resize the buffer with space for `buflen` frames `fsize` long each.
-If `fsize` is not provided, use the actual one. 
-
-If `buflen` is smaller than the actual buffer length, keep it. If this argument is 
-not provided, return to the default size `task.buflen` with present `fsize`.
-
-See [`clearbuffer!`](@ref) to clear the buffer.
-"""
-function resizebuffer!(task::DAQTask{T}, buflen, fsize) where {T}
-    nr,nc = size(task.buffer)
-    buflen = max(buflen, minbufsize(task))
-    if nr == fsize
-        resizebuffer!(task, buflen)
-    else
-        task.buffer = zeros(T, fsize, buflen)
-        clearbuffer!(task, false)
-    end
-    
-end
-
-function resizebuffer!(task::DAQTask{T}, buflen) where {T}
-    buflen = max(buflen, minbufsize(task))
-    nr, nc = size(task.buffer)
-    if buflen > nc
-        task.buffer = zeros(T, nr, buflen)
-        clearbuffer!(task, false)
-    end
-    return
-end
-
-
-resizebuffer!(task::DAQTask{T}) where {T} = resizebuffer!(task, minbuflen(task), bufwidth(task))
 
 
 """
@@ -142,17 +113,55 @@ function clearbuffer!(task::DAQTask, zeroit=true)
     task.stop = false
     task.thrd = false
     task.nread = 0
-    task.idx = 0
-
+    task.phead = 1
+    task.pnext = 0
+    task.pfull = false
     if zeroit
-        task.buffer .= 0
+        task.buf .= 0
     end
     return
 end
 
 
-taskflag(task::DAQTask) = task.flag
-settaskflag!(task::DAQTask, flg) = task.flag=flg
+"""
+    `resizebuffer!(tsk, [nw, [nt]]; dec=false)`
+
+Resize the buffer with space for `nt` frames `nw` long each.
+If `nw` is not provided, use the actual one. 
+
+If `nt` is smaller than the actual buffer length, only resize it if `dec==false`. 
+
+See [`clearbuffer!`](@ref) to clear the buffer.
+"""
+function resizebuffer!(task::DAQTask{T}, nw, nt; dec=false) where {T}
+    
+    if nw != task.nw
+        task.buf = zeros(T, nw, nt)
+        task.nw = nw
+        task.nt = nt
+    elseif nt > task.nt
+        task.buf = zeros(T, nw, nt)
+        task.nt = nt
+    elseif dec && nt < task.nt
+        task.buf =  zeros(T, nw, nt)
+        task.nt = nt
+    end
+    
+end
+
+function resizebuffer!(task::DAQTask{T}, nt; dec=false) where {T}
+    if nt > task.nt
+        task.buf = zeros(T, task.nw, nt)
+    elseif dec && nt < task.nt # Decrease the size
+        task.buf = zeros(T, task.nw, nt)
+    end
+end
+
+
+        
+
+resizebuffer!(task::DAQTask{T}) where {T} =
+    resizebuffer!(task, minbuflen(task), bufwidth(task))
 
 setdaqthread!(task::DAQTask, thrdstatus=false) = task.thrd=thrdstatus
 daqthread(task::DAQTask) = task.thrd
@@ -161,9 +170,33 @@ daqthread(task::DAQTask) = task.thrd
 setdaqtask!(task::DAQTask, jtsk::Task) = task.task = jtsk
 daqtask(task::DAQTask) = task.task
 
-function incidx!(task)
-    task.idx = (task.idx % size(task.buffer,2)) + 1
-    task.nread += 1
-    return task.idx
+
+"""
+    `nextbuffer(task)`
+
+Returns the next slot in the buffer. The buffer is assumed to be circular so that
+ new data will overwrite older data.
+"""
+function nextbuffer(task::DAQTask)
+    if task.pnext == task.nt
+        task.pfull = true
+    end
+    
+    task.pnext = (task.pnext % task.nt) + 1
+
+    if task.pfull
+        task.phead = (task.phead % task.nt) + 1
+    end
+    
+    return buffer(task, task.pnext)
 end
+
+    
+
+
+
+
+
+
+
 

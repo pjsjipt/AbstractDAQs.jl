@@ -2,12 +2,13 @@ module AbstractDAQ
 
 export AbstractDaqDevice
 export DAQTask, isreading, samplesread, issamplesavailable, buffer
-export resizebuffer!, clearbuffer!, bufsize, bufwidth, minbufsize, setminbufsize!
+export resizebuffer!, clearbuffer!, buflen, bufwidth, minbufsize, setminbufsize!
+export nextbuffer
 export taskflag, settaskflag!
 export setdaqthread!, daqthread
-export setdaqtask!, daqtask, incidx!
+export setdaqtask!, daqtask
 export daqaddinput, daqacquire, daqacquire!, daqstart, daqread, daqread!, daqstop
-export daqreference
+export daqreference, daqzero, daqconfig
 
 export TestDev
     
@@ -37,7 +38,8 @@ daqacquire!(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevi
 
 Initiate a data acquisition run asyncrhonously.
 """
-daqstart(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
+daqstart(dev::AbstractDaqDevice, usethread=false) =
+    error("Not implemented for AbstractDaqDevice")
 
 """
 `daqread(dev)`
@@ -74,9 +76,19 @@ Generic configuration of data acquisition.
  * `avg` Number of samples that should be read and averaged for each sample.
 
 """
-#daqconfig(dev::AbstractDaqDevice; freq, nsamples=0, time=0, avg=1) =
-#    error("Not implemented for AbstractDaqDevice")
+daqconfig(dev::AbstractDaqDevice; freq, nsamples=0, time=0, avg=1) =
+    error("Not implemented for AbstractDaqDevice")
 
 
+daqzero(dev::AbstractDaqDevice) =
+    error("Not implemented for AbstractDaqDevice")
 
+samplesread(dev::AbstractDaqDevice) =
+    error("Not implemented for AbstractDaqDevice")
+
+isreading(dev::AbstractDaqDevice) = 
+    error("Not implemented for AbstractDaqDevice")
+
+samplesavailable(dev::AbstractDaqDevice) = 
+    error("Not implemented for AbstractDaqDevice")
 end
