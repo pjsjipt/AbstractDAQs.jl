@@ -3,13 +3,14 @@ module AbstractDAQ
 export AbstractDaqDevice
 export DAQTask, isreading, samplesread, issamplesavailable, buffer
 export resizebuffer!, clearbuffer!, buflen, bufwidth, minbufsize, setminbufsize!
-export nextbuffer!, initbuffer!
+export nextbuffer!, initbuffer!, rewindbuffer!
 export samplingfreq, settiming!
 export taskflag, settaskflag!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask
 export daqaddinput, daqacquire, daqacquire!, daqstart, daqread, daqread!, daqstop
 export daqreference, daqzero, daqconfig
+export numchannels, daqchannels
 
 export TestDev
     
@@ -92,4 +93,11 @@ isreading(dev::AbstractDaqDevice) =
 
 samplesavailable(dev::AbstractDaqDevice) = 
     error("Not implemented for AbstractDaqDevice")
+
+numchannels(dev::AbstractDaqDevice) = 
+    error("Not implemented for AbstractDaqDevice")
+
+daqchannels(dev::AbstractDaqDevice) = 
+    error("Not implemented for AbstractDaqDevice")
+
 end

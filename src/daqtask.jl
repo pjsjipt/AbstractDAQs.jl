@@ -58,7 +58,7 @@ buffer(dtsk::DAQTask) = dtsk.buf
 
 Return the buffer of the task for the i-th frame.
 """
-buffer(dtsk::DAQTask, i) = view(dtsk.buf[:,i])
+buffer(dtsk::DAQTask, i) = view(dtsk.buf, :, i)
 
 
 """
@@ -209,7 +209,20 @@ function nextbuffer!(task::DAQTask)
     return buffer(task, task.pnext)
 end
 
-    
+"""
+    `rewindbuffer!(task)`
+
+The last acquired frame may have been comprimised. Remove it.
+There might be some problem in this function. For now I will do the minimal
+effort
+"""
+function rewindbuffer!(task::DAQTask)
+    if task.pnext != 1
+        task.pnext -= 1
+    else
+        task.pnext = task.nt
+    end
+end
 
 """
     `samplingfreq(task)`
@@ -219,7 +232,7 @@ end
 """
 samplingfreq(task::DAQTask) = task.timing[3] / (1e-9 * (task.timing[2] - task.timing[1]))
 
-settiming!(task, t1, t2, n) = task.timing = (t1, t2, n)
+settiming!(task, t1, t2, n) = task.timing = (UInt64(t1), UInt64(t2), UInt64(n))
 
 
 
