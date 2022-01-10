@@ -261,6 +261,7 @@ function Base.resize!(cb::CircMatBuffer, w::Integer, n::Integer)
         return resize!(cb, n)
     else
         cb.capacity = n
+        cb.width = w
         cb.length = 0
         cb.first = 1
         cb.buffer = zeros(eltype(cb), w, n)

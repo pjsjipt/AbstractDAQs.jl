@@ -2,7 +2,7 @@ module AbstractDAQ
 
 export AbstractDaqDevice
 export DAQTask, isreading, samplesread, issamplesavailable
-export stoptask, stoptask!
+export stoptask, stoptask!, cleartask!
 export samplingfreq, settiming!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask

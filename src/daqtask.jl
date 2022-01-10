@@ -12,8 +12,7 @@ mutable struct DAQTask
     timing::NTuple{3, UInt64}
     "`Task` object executing the data acquisition"
     task::Task
-    DAQTask() = new(0,false,false,false, (UInt64(0),UInt64(0),UInt64(0)),
-                    zeros(T,0,0), 1, Task(()->0))
+    DAQTask() = new(0,false,false,false, (UInt64(0),UInt64(0),UInt64(0)), Task(()->0))
 end
 
 
