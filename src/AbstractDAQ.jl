@@ -1,22 +1,23 @@
 module AbstractDAQ
 
 export AbstractDaqDevice
-export DAQTask, isreading, samplesread, issamplesavailable, buffer
-export resizebuffer!, clearbuffer!, buflen, bufwidth, minbufsize, setminbufsize!
-export nextbuffer!, initbuffer!, rewindbuffer!
+export DAQTask, isreading, samplesread, issamplesavailable
 export samplingfreq, settiming!
-export taskflag, settaskflag!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask
 export daqaddinput, daqacquire, daqacquire!, daqstart, daqread, daqread!, daqstop
 export daqreference, daqzero, daqconfig
 export numchannels, daqchannels
+export CircMatBuffer
+export nextbuffer, isfull, isempty, flatten, flatten!, capacity
 
 export TestDev
     
 abstract type AbstractDaqDevice end
 
 include("daqtask.jl")
+include("circbuffer.jl")
+
 include("testdevice.jl")
 
 
@@ -91,7 +92,7 @@ samplesread(dev::AbstractDaqDevice) =
 isreading(dev::AbstractDaqDevice) = 
     error("Not implemented for AbstractDaqDevice")
 
-samplesavailable(dev::AbstractDaqDevice) = 
+issamplesavailable(dev::AbstractDaqDevice) = 
     error("Not implemented for AbstractDaqDevice")
 
 numchannels(dev::AbstractDaqDevice) = 
