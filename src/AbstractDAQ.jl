@@ -2,13 +2,14 @@ module AbstractDAQ
 
 export AbstractDaqDevice
 export DAQTask, isreading, samplesread, issamplesavailable
+export stoptask, stoptask!
 export samplingfreq, settiming!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask
 export daqaddinput, daqacquire, daqacquire!, daqstart, daqread, daqread!, daqstop
 export daqreference, daqzero, daqconfig
 export numchannels, daqchannels
-export CircMatBuffer
+export CircMatBuffer, bufwidth
 export nextbuffer, isfull, isempty, flatten, flatten!, capacity
 
 export TestDev

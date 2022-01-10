@@ -8,6 +8,8 @@ mutable struct CircMatBuffer{T} <: AbstractVector{T}
     buffer::Matrix{T}
 end
 
+CircMatBuffer{T}() where {T} = CircMatBuffer{T}(0,0,1,0,Matrix{T}(undef,0,0))
+
 CircMatBuffer{T}(width, capacity) where {T} =
     CircMatBuffer{T}(capacity, width, 1, 0, zeros(T, width, capacity))
 
@@ -245,14 +247,9 @@ function Base.resize!(cb::CircMatBuffer, n::Integer)
     if n != capacity(cb)
         w = bufwidth(cb)
         buf_new = Matrix{eltype(cb)}(undef, w, n)
-        len_new = min(length(cb), n)
-        for i in 1:len_new
-            @inbounds buf_new[i] .= cb[i]
-        end
-
         cb.capacity = n
         cb.first = 1
-        cb.length = len_new
+        cb.length = 0
         cb.buffer = buf_new
     end
     return cb
@@ -265,8 +262,8 @@ function Base.resize!(cb::CircMatBuffer, w::Integer, n::Integer)
     else
         cb.capacity = n
         cb.length = 0
-        cp.first = 1
-        cp.buffer = zeros(eltype(cb), w, n)
+        cb.first = 1
+        cb.buffer = zeros(eltype(cb), w, n)
         return cb
     end
 end

@@ -1,5 +1,5 @@
 
-mutable struct DAQTask{T}
+mutable struct DAQTask
     "Number of frames read"
     nread::Int
     "Is the device reading frames?"
@@ -12,8 +12,8 @@ mutable struct DAQTask{T}
     timing::NTuple{3, UInt64}
     "`Task` object executing the data acquisition"
     task::Task
-    DAQTask{T}() where {T} = new(0,false,false,false, (UInt64(0),UInt64(0),UInt64(0)),
-                                 zeros(T,0,0), 1, Task(()->0))
+    DAQTask() = new(0,false,false,false, (UInt64(0),UInt64(0),UInt64(0)),
+                    zeros(T,0,0), 1, Task(()->0))
 end
 
 
@@ -53,6 +53,9 @@ daqthread(task::DAQTask) = task.thrd
 
 setdaqtask!(task::DAQTask, jtsk::Task) = task.task = jtsk
 daqtask(task::DAQTask) = task.task
+
+stoptask(task::DAQTask) = task.stop
+stoptask!(task::DAQTask, s=true) = task.stop = s
 
 
 
