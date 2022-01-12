@@ -27,6 +27,7 @@ See [`samplesread`](@ref) to see the number of samples already read.
 """
 isreading(task::DAQTask) = task.isreading
 
+samplesread(task::DAQTask) = task.nread
 
 
 """

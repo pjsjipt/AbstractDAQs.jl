@@ -1,13 +1,13 @@
 module AbstractDAQ
 
-export AbstractDaqDevice
+export AbstractDaqDevice, AbstractPressureScanner
 export DAQTask, isreading, samplesread, issamplesavailable
 export stoptask, stoptask!, cleartask!
 export samplingfreq, settiming!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask
 export daqaddinput, daqacquire, daqacquire!, daqstart, daqread, daqread!, daqstop
-export daqreference, daqzero, daqconfig
+export daqreference, daqzero, daqconfig, daqconfigdev
 export numchannels, daqchannels
 export CircMatBuffer, bufwidth
 export nextbuffer, isfull, isempty, flatten, flatten!, capacity
@@ -15,6 +15,7 @@ export nextbuffer, isfull, isempty, flatten, flatten!, capacity
 export TestDev
     
 abstract type AbstractDaqDevice end
+abstract type AbstractPressureScanner <: AbstractDaqDevice end
 
 include("daqtask.jl")
 include("circbuffer.jl")
@@ -72,17 +73,34 @@ daqreference(dev::AbstractDaqDevice) =error("Not implemented for AbstractDaqDevi
 """
 `daqconfig(dev, freq, nsamples, time, avg)`
 
-Generic configuration of data acquisition. 
+Generic configuration of data acquisition. Different devices might
+have other capabilities and different terminologies. To use the device specific
+parameters and terminology, use function [`daqconfigdev`](@ref). 
 
- * `freq` Keyword argument specifying sampling frequency
- * `nsamples` Number of samples to be read. If 0, use parameter `time`
- * `time` Time in seconds during which data must be acquired. If zero, use `nsamples`
- * `avg` Number of samples that should be read and averaged for each sample.
+In this generic interface, the following keyword parameters are allowed:
 
+ * `freq` or `dt` (only one of them)
+    - `freq` Sampling frequency in Hz
+    - `dt` Sampling time in s
+ * `nsamples` or `time` (only one of them) 
+    - `nsamples` Number of samples to be read. 0 usually means continous reading
+    - `time` sampling time in seconds
+ * `avg` Number of samples that should be read and averaged for each output.
+ * `trigger` An integer specifying the trigger type 0 - internal trigger, other values depend on the specific device.
 """
-daqconfig(dev::AbstractDaqDevice; freq, nsamples=0, time=0, avg=1) =
+daqconfig(dev::AbstractDaqDevice; kw...) =
     error("Not implemented for AbstractDaqDevice")
 
+"""
+`daqconfigdev(dev; kw...)`
+
+Device configuration. 
+
+Does the samething as [`daqconfig`](@ref) but uses the devices terminology and exact
+parameters.
+"""
+daqconfigdev(dev::AbstractDaqDevice; kw...) = 
+    error("Not implemented for AbstractDaqDevice")
 
 daqzero(dev::AbstractDaqDevice) =
     error("Not implemented for AbstractDaqDevice")
