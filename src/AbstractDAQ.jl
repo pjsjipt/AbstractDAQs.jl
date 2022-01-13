@@ -6,16 +6,67 @@ export stoptask, stoptask!, cleartask!
 export samplingfreq, settiming!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask
-export daqaddinput, daqacquire, daqacquire!, daqstart, daqread, daqread!, daqstop
+export daqaddinput, daqacquire, daqacquire!, daqstart
+export daqread, daqread!, daqstop, daqdevname
+
 export daqreference, daqzero, daqconfig, daqconfigdev
 export numchannels, daqchannels
 export CircMatBuffer, bufwidth
 export nextbuffer, isfull, isempty, flatten, flatten!, capacity
+export DAQConfig, iparameters, fparameters, sparameters
+export daqdevip, daqdevmodel, daqdevserialnum, daqdevtag
 
 export TestDev
     
 abstract type AbstractDaqDevice end
 abstract type AbstractPressureScanner <: AbstractDaqDevice end
+
+mutable struct DAQConfig
+    devname::String
+    ip::String
+    model::String
+    sn::String
+    tag::String
+    ipars::Dict{String,Int}
+    fpars::Dict{String,Float64}
+    spars::Dict{String,String}
+end
+
+function DAQConfig(;devname="", ip="", model="", sn="",tag="")
+    
+    fpars = Dict{String,Float64}()
+    ipars = Dict{String,Int}()
+    spars = Dict{String,String}()
+    return DAQConfig(devname, ip, model, sn, tag, ipars, fpars, spars)
+end
+
+function DAQConfig(ipars, fpars, spars;devname="", ip="", model="", sn="",tag="")
+    
+    return DAQConfig(devname, ip, model, sn, tag, ipars, fpars, spars)
+end
+
+iparameters(dconf::DAQConfig, param) = dconf.ipars[param]
+sparameters(dconf::DAQConfig, param) = dconf.spars[param]
+fparameters(dconf::DAQConfig, param) = dconf.fpars[param]
+
+daqdevname(dconf::DAQConfig) = dconf.devname
+daqdevip(dconf::DAQConfig) = dconf.ip
+daqdevmodel(dconf::DAQConfig) = dconf.model
+daqdevserialnum(dconf::DAQConfig) = dconf.sn
+daqdevtag(dconf::DAQConfig) = dconf.tag
+
+iparameters(dev::AbstractDaqDevice, param) = dev.conf.ipars[param]
+sparameters(dev::AbstractDaqDevice, param) = dev.conf.spars[param]
+fparameters(dev::AbstractDaqDevice, param) = dev.conf.fpars[param]
+
+daqdevname(dev::AbstractDaqDevice) = dev.conf.devname
+daqdevip(dev::AbstractDaqDevice) = dev.conf.ip
+daqdevmodel(dev::AbstractDaqDevice) = dev.conf.model
+daqdevserialnum(dev::AbstractDaqDevice) = dev.conf.sn
+daqdevtag(dev::AbstractDaqDevice) = dev.conf.tag
+
+                
+
 
 include("daqtask.jl")
 include("circbuffer.jl")
@@ -23,6 +74,12 @@ include("circbuffer.jl")
 include("testdevice.jl")
 
 
+"""
+`daqdevname(dev)`
+
+Returns the name of the device
+"""
+daqdevname(dev::AbstractDaqDevice)=error("Not implemented for AbstractDaqDevice")
 """
 `daqaddinput(dev, ...)`
 
