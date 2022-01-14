@@ -15,7 +15,7 @@ export CircMatBuffer, bufwidth
 export nextbuffer, isfull, isempty, flatten, flatten!, capacity
 export DAQConfig, iparameters, fparameters, sparameters
 export daqdevip, daqdevmodel, daqdevserialnum, daqdevtag
-
+export savedaqdata, savedaqconfig
 export TestDev
     
 abstract type AbstractDaqDevice end
@@ -49,6 +49,10 @@ iparameters(dconf::DAQConfig, param) = dconf.ipars[param]
 sparameters(dconf::DAQConfig, param) = dconf.spars[param]
 fparameters(dconf::DAQConfig, param) = dconf.fpars[param]
 
+iparameters(dconf::DAQConfig) = dconf.ipars
+sparameters(dconf::DAQConfig) = dconf.spars
+fparameters(dconf::DAQConfig) = dconf.fpars
+
 daqdevname(dconf::DAQConfig) = dconf.devname
 daqdevip(dconf::DAQConfig) = dconf.ip
 daqdevmodel(dconf::DAQConfig) = dconf.model
@@ -58,6 +62,10 @@ daqdevtag(dconf::DAQConfig) = dconf.tag
 iparameters(dev::AbstractDaqDevice, param) = dev.conf.ipars[param]
 sparameters(dev::AbstractDaqDevice, param) = dev.conf.spars[param]
 fparameters(dev::AbstractDaqDevice, param) = dev.conf.fpars[param]
+
+iparameters(dev::AbstractDaqDevice) = dev.conf.ipars
+sparameters(dev::AbstractDaqDevice) = dev.conf.spars
+fparameters(dev::AbstractDaqDevice) = dev.conf.fpars
 
 daqdevname(dev::AbstractDaqDevice) = dev.conf.devname
 daqdevip(dev::AbstractDaqDevice) = dev.conf.ip
@@ -70,7 +78,7 @@ daqdevtag(dev::AbstractDaqDevice) = dev.conf.tag
 
 include("daqtask.jl")
 include("circbuffer.jl")
-
+include("hdf5io.jl")
 include("testdevice.jl")
 
 
