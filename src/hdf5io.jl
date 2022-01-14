@@ -1,7 +1,8 @@
 using HDF5
 
-function savedaqdata(h5, devname, X, fs)
+function savedaqdata(h5, dev, X, fs)
 
+    devname = daqdevname(dev)
     h5[devname] = X
     d = h5[devname]
     attributes(d)["fs"] = fs
@@ -20,14 +21,14 @@ function savedaqconfig(h5, dev)
     g["sn"] = daqdevserialnum(dev)
     g["tag"] = daqdevtag(dev)
     
-    g["iparameters_names"] = keys(iparameters(dev))
-    g["iparameters"] = values(iparameters(dev))
+    g["iparameters_names"] = collect(keys(iparameters(dev)))
+    g["iparameters"] = collect(values(iparameters(dev)))
 
-    g["sparameters_names"] = keys(sparameters(dev))
-    g["sparameters"] = values(sparameters(dev))
+    g["sparameters_names"] = collect(keys(sparameters(dev)))
+    g["sparameters"] = collect(values(sparameters(dev)))
     
-    g["fparameters_names"] = keys(fparameters(dev))
-    g["fparameters"] = values(fparameters(dev))
+    g["fparameters_names"] = collect(keys(fparameters(dev)))
+    g["fparameters"] = collect(values(fparameters(dev)))
 
     g["daqchannels"] = daqchannels(dev)
     return 
