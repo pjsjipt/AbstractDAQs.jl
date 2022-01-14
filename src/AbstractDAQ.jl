@@ -75,12 +75,6 @@ include("testdevice.jl")
 
 
 """
-`daqdevname(dev)`
-
-Returns the name of the device
-"""
-daqdevname(dev::AbstractDaqDevice)=error("Not implemented for AbstractDaqDevice")
-"""
 `daqaddinput(dev, ...)`
 
 Add channels that should be acquired.
