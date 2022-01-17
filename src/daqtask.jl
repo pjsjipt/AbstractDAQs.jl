@@ -12,6 +12,16 @@ mutable struct DAQTask
     timing::NTuple{3, UInt64}
     "`Task` object executing the data acquisition"
     task::Task
+    """
+    `DAQTasq`
+    
+    Creates a structure that handles asynchronous data acquisition.
+
+    This structure stores the number of samples read and the general state of data 
+    acquisition. It also provides timing measurements so that sampling frequency
+    can estimated.
+
+    """
     DAQTask() = new(0,false,false,false, (UInt64(0),UInt64(0),UInt64(0)), Task(()->0))
 end
 
@@ -67,6 +77,17 @@ stoptask!(task::DAQTask, s=true) = task.stop = s
 """
 samplingfreq(task::DAQTask) = task.timing[3] / (1e-9 * (task.timing[2] - task.timing[1]))
 
+"""
+`settiming!(task, t1, t2, n)`
+
+Updates timing information on current data acquisition
+
+ * `task` The `DAQTask` object
+ * `t1` Initial time of data acquisition
+ * `t2` Last time of data acquisition
+ * `n` Number of samples read between `t1` and `t2`
+
+"""
 settiming!(task, t1, t2, n) = task.timing = (UInt64(t1), UInt64(t2), UInt64(n))
 
 

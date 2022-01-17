@@ -22,16 +22,32 @@ abstract type AbstractDaqDevice end
 abstract type AbstractPressureScanner <: AbstractDaqDevice end
 
 mutable struct DAQConfig
+    "Name for referening the device"
     devname::String
+    "IP address where the device is located"
     ip::String
+    "Model of device"
     model::String
+    "Serial number of the device"
     sn::String
+    "Storage tag of the device"
     tag::String
+    "Integer configuration parameters"
     ipars::Dict{String,Int}
+    "Float64  configuration parameters"
     fpars::Dict{String,Float64}
+    "String configuration parameters"
     spars::Dict{String,String}
 end
 
+"""
+`DAQConfig(;devname="", ip="", model="", sn="",tag="")`
+
+Create data structure to store device configuration. 
+
+Hopefuly, with the information stored in this struct, reproducible 
+data configuration of the devices can be achieved.
+"""
 function DAQConfig(;devname="", ip="", model="", sn="",tag="")
     
     fpars = Dict{String,Float64}()
@@ -45,18 +61,26 @@ function DAQConfig(ipars, fpars, spars;devname="", ip="", model="", sn="",tag=""
     return DAQConfig(devname, ip, model, sn, tag, ipars, fpars, spars)
 end
 
+"Retrieve integer configuration parameter"
 iparameters(dconf::DAQConfig, param) = dconf.ipars[param]
+"Retrieve string configuration parameter"
 sparameters(dconf::DAQConfig, param) = dconf.spars[param]
+"Retrieve float configuration parameter"
 fparameters(dconf::DAQConfig, param) = dconf.fpars[param]
 
 iparameters(dconf::DAQConfig) = dconf.ipars
 sparameters(dconf::DAQConfig) = dconf.spars
 fparameters(dconf::DAQConfig) = dconf.fpars
 
+"Retrieve device name"
 daqdevname(dconf::DAQConfig) = dconf.devname
+"Retrieve device IP address"
 daqdevip(dconf::DAQConfig) = dconf.ip
+"Retrieve device model"
 daqdevmodel(dconf::DAQConfig) = dconf.model
+"Retrieve device serial number"
 daqdevserialnum(dconf::DAQConfig) = dconf.sn
+"Retrieve device tag"
 daqdevtag(dconf::DAQConfig) = dconf.tag
 
 iparameters(dev::AbstractDaqDevice, param) = dev.conf.ipars[param]
@@ -161,21 +185,51 @@ parameters.
 daqconfigdev(dev::AbstractDaqDevice; kw...) = 
     error("Not implemented for AbstractDaqDevice")
 
+"""
+`daqzero(dev)`
+
+Perform a zero calibration of the DAQ device. The exact nature of this zero calibration.
+"""
 daqzero(dev::AbstractDaqDevice) =
     error("Not implemented for AbstractDaqDevice")
 
+"""
+`samplesread(dev)`
+
+Return the number of samples read since the beginning of data aquisition.
+"""
 samplesread(dev::AbstractDaqDevice) =
     error("Not implemented for AbstractDaqDevice")
 
+"""
+`isreading(dev)`
+
+Returns `true` if data acquisition is ongoing, `false` otherwise.
+"""
 isreading(dev::AbstractDaqDevice) = 
     error("Not implemented for AbstractDaqDevice")
 
+"""
+`issamplesavailable(dev)`
+
+Are samples available for reading?
+"""
 issamplesavailable(dev::AbstractDaqDevice) = 
     error("Not implemented for AbstractDaqDevice")
 
+"""
+`numchannels(dev)`
+
+Number of channels available or configured in the DAQ device.
+"""
 numchannels(dev::AbstractDaqDevice) = 
     error("Not implemented for AbstractDaqDevice")
 
+"""
+`daqchannels(dev)`
+
+Returns the DAQ channels available or configured in the DAQ device.
+"""
 daqchannels(dev::AbstractDaqDevice) = 
     error("Not implemented for AbstractDaqDevice")
 
