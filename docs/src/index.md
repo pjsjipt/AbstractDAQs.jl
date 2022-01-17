@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = AbstractDAQ
+CurrentModule = AbstractDAQs
 ```
 
-# AbstractDAQ
+# AbstractDAQs
 
-Documentation for [AbstractDAQ](https://github.com/pjsjipt/AbstractDAQ.jl).
+Documentation for [AbstractDAQs](https://github.com/pjsjipt/AbstractDAQs.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [AbstractDAQ]
+Modules = [AbstractDAQs]
 ```

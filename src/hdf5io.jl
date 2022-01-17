@@ -16,7 +16,7 @@ The user should ensure that the data being stored (including attributes) have ty
 compatible with the HDF5.jl package.
 
 """
-function savedaqdata(h5, dev, X; kw...)
+function savedaqdata(h5, dev::AbstractDAQ, X; kw...)
 
     devname = daqdevname(dev)
     h5[devname] = X
@@ -30,7 +30,7 @@ end
 
 
 """
-`savedaqconfig(h5, dev; kw...)`
+`savedaqconfig(h5, dev::AbstractDAQ; kw...)`
 
 Save device configuration. Stores information contained in the `conf::DAQConfig` 
 field of the daq device. Other information can be stored using the keyword parameters
@@ -43,7 +43,7 @@ The user should ensure that the data being stored ( have types
 compatible with the HDF5.jl package.
 
 """
-function savedaqconfig(h5, dev; kw...)
+function savedaqconfig(h5, dev::AbstractDAQ; kw...)
 
     devname = daqdevname(dev)
     g = create_group(h5, devname)

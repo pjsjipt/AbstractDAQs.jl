@@ -1,4 +1,4 @@
-name = "AbstractDAQ"
+name = "AbstractDAQs"
 uuid = "be525c41-cbe2-4c7e-9446-a8e259030c72"
 authors = ["Paulo Jabardo <pjabardo@ipt.br>"]
 version = "0.1.0"

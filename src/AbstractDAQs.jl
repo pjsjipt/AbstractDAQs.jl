@@ -1,6 +1,6 @@
-module AbstractDAQ
+module AbstractDAQs
 
-export AbstractDaqDevice, AbstractPressureScanner
+export AbstractDAQ, AbstractPressureScanner
 export DAQTask, isreading, samplesread, issamplesavailable
 export stoptask, stoptask!, cleartask!
 export samplingfreq, settiming!
@@ -18,8 +18,8 @@ export daqdevip, daqdevmodel, daqdevserialnum, daqdevtag
 export savedaqdata, savedaqconfig
 export TestDev
     
-abstract type AbstractDaqDevice end
-abstract type AbstractPressureScanner <: AbstractDaqDevice end
+abstract type AbstractDAQ end
+abstract type AbstractPressureScanner <: AbstractDAQ end
 
 mutable struct DAQConfig
     "Name for referening the device"
@@ -83,19 +83,19 @@ daqdevserialnum(dconf::DAQConfig) = dconf.sn
 "Retrieve device tag"
 daqdevtag(dconf::DAQConfig) = dconf.tag
 
-iparameters(dev::AbstractDaqDevice, param) = dev.conf.ipars[param]
-sparameters(dev::AbstractDaqDevice, param) = dev.conf.spars[param]
-fparameters(dev::AbstractDaqDevice, param) = dev.conf.fpars[param]
+iparameters(dev::AbstractDAQ, param) = dev.conf.ipars[param]
+sparameters(dev::AbstractDAQ, param) = dev.conf.spars[param]
+fparameters(dev::AbstractDAQ, param) = dev.conf.fpars[param]
 
-iparameters(dev::AbstractDaqDevice) = dev.conf.ipars
-sparameters(dev::AbstractDaqDevice) = dev.conf.spars
-fparameters(dev::AbstractDaqDevice) = dev.conf.fpars
+iparameters(dev::AbstractDAQ) = dev.conf.ipars
+sparameters(dev::AbstractDAQ) = dev.conf.spars
+fparameters(dev::AbstractDAQ) = dev.conf.fpars
 
-daqdevname(dev::AbstractDaqDevice) = dev.conf.devname
-daqdevip(dev::AbstractDaqDevice) = dev.conf.ip
-daqdevmodel(dev::AbstractDaqDevice) = dev.conf.model
-daqdevserialnum(dev::AbstractDaqDevice) = dev.conf.sn
-daqdevtag(dev::AbstractDaqDevice) = dev.conf.tag
+daqdevname(dev::AbstractDAQ) = dev.conf.devname
+daqdevip(dev::AbstractDAQ) = dev.conf.ip
+daqdevmodel(dev::AbstractDAQ) = dev.conf.model
+daqdevserialnum(dev::AbstractDAQ) = dev.conf.sn
+daqdevtag(dev::AbstractDAQ) = dev.conf.tag
 
                 
 
@@ -111,31 +111,31 @@ include("testdevice.jl")
 
 Add channels that should be acquired.
 """
-daqaddinput(dev::AbstractDaqDevice)=error("Not implemented for AbstractDaqDevice")
+daqaddinput(dev::AbstractDAQ)=error("Not implemented for AbstractDAQ")
 
 """
 `daqacquire(dev)`
 
 Start a synchronous data acquisition run.
 """
-daqacquire(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
-daqacquire!(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
+daqacquire(dev::AbstractDAQ) = error("Not implemented for AbstractDAQ")
+daqacquire!(dev::AbstractDAQ) = error("Not implemented for AbstractDAQ")
 
 """
 `daqstart(dev, ...)`
 
 Initiate a data acquisition run asyncrhonously.
 """
-daqstart(dev::AbstractDaqDevice, usethread=false) =
-    error("Not implemented for AbstractDaqDevice")
+daqstart(dev::AbstractDAQ, usethread=false) =
+    error("Not implemented for AbstractDAQ")
 
 """
 `daqread(dev)`
 
 Wait to finish the data acquisition run and return the data.
 """
-daqread(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
-daqread!(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
+daqread(dev::AbstractDAQ) = error("Not implemented for AbstractDAQ")
+daqread!(dev::AbstractDAQ) = error("Not implemented for AbstractDAQ")
 
 
 """
@@ -143,7 +143,7 @@ daqread!(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice"
 
 Stop asynchronous data acquisition.
 """
-daqstop(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
+daqstop(dev::AbstractDAQ) = error("Not implemented for AbstractDAQ")
 
 """
 `daqreference(dev)`
@@ -151,7 +151,7 @@ daqstop(dev::AbstractDaqDevice) = error("Not implemented for AbstractDaqDevice")
 Use a measurement point as a reference. Specific channels can be specified.
 
 """
-daqreference(dev::AbstractDaqDevice) =error("Not implemented for AbstractDaqDevice")
+daqreference(dev::AbstractDAQ) =error("Not implemented for AbstractDAQ")
 
 """
 `daqconfig(dev, freq, nsamples, time, avg)`
@@ -171,8 +171,8 @@ In this generic interface, the following keyword parameters are allowed:
  * `avg` Number of samples that should be read and averaged for each output.
  * `trigger` An integer specifying the trigger type 0 - internal trigger, other values depend on the specific device.
 """
-daqconfig(dev::AbstractDaqDevice; kw...) =
-    error("Not implemented for AbstractDaqDevice")
+daqconfig(dev::AbstractDAQ; kw...) =
+    error("Not implemented for AbstractDAQ")
 
 """
 `daqconfigdev(dev; kw...)`
@@ -182,55 +182,55 @@ Device configuration.
 Does the samething as [`daqconfig`](@ref) but uses the devices terminology and exact
 parameters.
 """
-daqconfigdev(dev::AbstractDaqDevice; kw...) = 
-    error("Not implemented for AbstractDaqDevice")
+daqconfigdev(dev::AbstractDAQ; kw...) = 
+    error("Not implemented for AbstractDAQ")
 
 """
 `daqzero(dev)`
 
 Perform a zero calibration of the DAQ device. The exact nature of this zero calibration.
 """
-daqzero(dev::AbstractDaqDevice) =
-    error("Not implemented for AbstractDaqDevice")
+daqzero(dev::AbstractDAQ) =
+    error("Not implemented for AbstractDAQ")
 
 """
 `samplesread(dev)`
 
 Return the number of samples read since the beginning of data aquisition.
 """
-samplesread(dev::AbstractDaqDevice) =
-    error("Not implemented for AbstractDaqDevice")
+samplesread(dev::AbstractDAQ) =
+    error("Not implemented for AbstractDAQ")
 
 """
 `isreading(dev)`
 
 Returns `true` if data acquisition is ongoing, `false` otherwise.
 """
-isreading(dev::AbstractDaqDevice) = 
-    error("Not implemented for AbstractDaqDevice")
+isreading(dev::AbstractDAQ) = 
+    error("Not implemented for AbstractDAQ")
 
 """
 `issamplesavailable(dev)`
 
 Are samples available for reading?
 """
-issamplesavailable(dev::AbstractDaqDevice) = 
-    error("Not implemented for AbstractDaqDevice")
+issamplesavailable(dev::AbstractDAQ) = 
+    error("Not implemented for AbstractDAQ")
 
 """
 `numchannels(dev)`
 
 Number of channels available or configured in the DAQ device.
 """
-numchannels(dev::AbstractDaqDevice) = 
-    error("Not implemented for AbstractDaqDevice")
+numchannels(dev::AbstractDAQ) = 
+    error("Not implemented for AbstractDAQ")
 
 """
 `daqchannels(dev)`
 
 Returns the DAQ channels available or configured in the DAQ device.
 """
-daqchannels(dev::AbstractDaqDevice) = 
-    error("Not implemented for AbstractDaqDevice")
+daqchannels(dev::AbstractDAQ) = 
+    error("Not implemented for AbstractDAQ")
 
 end
