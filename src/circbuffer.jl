@@ -244,7 +244,7 @@ Resize CircMatBuffer to the maximum capacity of n elements.
 If n is smaller than the current buffer length, the first n elements will be retained.
 """
 function Base.resize!(cb::CircMatBuffer, n::Integer)
-    if n != capacity(cb)
+    if n != capacity(cb) || size(cb.buffer, 1) == 0
         w = bufwidth(cb)
         buf_new = Matrix{eltype(cb)}(undef, w, n)
         cb.capacity = n
