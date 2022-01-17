@@ -17,7 +17,8 @@ export DAQConfig, iparameters, fparameters, sparameters
 export daqdevip, daqdevmodel, daqdevserialnum, daqdevtag
 export savedaqdata, savedaqconfig
 export TestDev
-    
+
+
 abstract type AbstractDAQ end
 abstract type AbstractPressureScanner <: AbstractDAQ end
 
