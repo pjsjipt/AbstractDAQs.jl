@@ -1,6 +1,6 @@
-using AbstractDAQ
+using AbstractDAQs
 using Test
 
-@testset "AbstractDAQ.jl" begin
+@testset "AbstractDAQs.jl" begin
     # Write your tests here.
 end
