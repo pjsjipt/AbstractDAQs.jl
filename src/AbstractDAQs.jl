@@ -2,6 +2,7 @@ module AbstractDAQs
 
 export AbstractDAQ, AbstractPressureScanner
 export DAQTask, isreading, samplesread, issamplesavailable
+export isdaqfinished
 export stoptask, stoptask!, cleartask!
 export samplingfreq, settiming!
 export setdaqthread!, daqthread
@@ -210,6 +211,13 @@ Returns `true` if data acquisition is ongoing, `false` otherwise.
 isreading(dev::AbstractDAQ) = 
     error("Not implemented for AbstractDAQ")
 
+"""
+`isdaqfinished(dev)`
+
+Returns true if the device has completed its operations.
+"""
+isdaqfinished(dev::AbstractDAQ) = 
+    error("Not implemented for AbstractDAQ")
 """
 `issamplesavailable(dev)`
 
