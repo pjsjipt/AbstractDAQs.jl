@@ -4,7 +4,7 @@ export AbstractDAQ, AbstractPressureScanner
 export DAQTask, isreading, samplesread, issamplesavailable
 export isdaqfinished
 export stoptask, stoptask!, cleartask!
-export samplingfreq, settiming!
+export samplingrate, settiming!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask
 export daqaddinput, daqacquire, daqacquire!, daqstart
@@ -156,7 +156,7 @@ Use a measurement point as a reference. Specific channels can be specified.
 daqreference(dev::AbstractDAQ) =error("Not implemented for AbstractDAQ")
 
 """
-`daqconfig(dev, freq, nsamples, time, avg)`
+`daqconfig(dev; rate, nsamples, time, avg=1)`
 
 Generic configuration of data acquisition. Different devices might
 have other capabilities and different terminologies. To use the device specific
@@ -164,8 +164,8 @@ parameters and terminology, use function [`daqconfigdev`](@ref).
 
 In this generic interface, the following keyword parameters are allowed:
 
- * `freq` or `dt` (only one of them)
-    - `freq` Sampling frequency in Hz
+ * `rate` or `dt` (only one of them)
+    - `rate` Sampling rate in Hz
     - `dt` Sampling time in s
  * `nsamples` or `time` (only one of them) 
     - `nsamples` Number of samples to be read. 0 usually means continous reading

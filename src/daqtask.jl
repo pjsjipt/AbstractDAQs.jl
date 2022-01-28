@@ -70,12 +70,12 @@ stoptask!(task::DAQTask, s=true) = task.stop = s
 
 
 """
-    `samplingfreq(task)`
+    `samplingrate(task)`
 
-    Returns the measured sampling frequency achieved during data acquisition
+    Returns the measured sampling rateuency achieved during data acquisition
 
 """
-samplingfreq(task::DAQTask) = task.timing[3] / (1e-9 * (task.timing[2] - task.timing[1]))
+samplingrate(task::DAQTask) = task.timing[3] / (1e-9 * (task.timing[2] - task.timing[1]))
 
 """
 `settiming!(task, t1, t2, n)`
