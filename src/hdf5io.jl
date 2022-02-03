@@ -45,8 +45,10 @@ compatible with the HDF5.jl package.
 """
 function savedaqconfig(h5, dev::AbstractDAQ; kw...)
 
+    device = string(typeof(dev))
     devname = daqdevname(dev)
     g = create_group(h5, devname)
+    g["device"] = device
     g["devname"] = devname
     g["ip"] = daqdevip(dev)
     g["model"] = daqdevmodel(dev)

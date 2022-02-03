@@ -24,6 +24,7 @@ abstract type AbstractDAQ end
 abstract type AbstractPressureScanner <: AbstractDAQ end
 
 include("daqconfig.jl")
+include("daqtask.jl")
 include("circbuffer.jl")
 include("hdf5io.jl")
 include("interface.jl")
