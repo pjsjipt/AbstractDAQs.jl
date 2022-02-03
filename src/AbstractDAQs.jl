@@ -105,7 +105,6 @@ daqdevtag(dev::AbstractDAQ) = dev.conf.tag
 include("daqtask.jl")
 include("circbuffer.jl")
 include("hdf5io.jl")
-include("testdevice.jl")
 
 
 """
@@ -241,5 +240,9 @@ Returns the DAQ channels available or configured in the DAQ device.
 """
 daqchannels(dev::AbstractDAQ) = 
     error("Not implemented for AbstractDAQ")
+
+
+
+include("testdevice.jl")
 
 end
