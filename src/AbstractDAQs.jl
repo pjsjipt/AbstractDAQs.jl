@@ -8,7 +8,7 @@ export samplingrate, settiming!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask
 export daqaddinput, daqacquire, daqacquire!, daqstart
-export daqread, daqread!, daqstop, daqdevname
+export daqread, daqread!, daqstop, devname
 
 export daqreference, daqzero, daqconfig, daqconfigdev
 export numchannels, daqchannels
@@ -19,9 +19,12 @@ export daqdevip, daqdevmodel, daqdevserialnum, daqdevtag
 export savedaqdata, savedaqconfig
 export TestDev
 
+abstract type AbstractDevice end
 
-abstract type AbstractDAQ end
+abstract type AbstractDAQ <: AbstractDevice end
 abstract type AbstractPressureScanner <: AbstractDAQ end
+
+devname(dev::AbstractDevice) = dev.devname
 
 include("daqconfig.jl")
 include("daqtask.jl")

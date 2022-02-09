@@ -51,7 +51,7 @@ sparameters(dconf::DAQConfig) = dconf.spars
 fparameters(dconf::DAQConfig) = dconf.fpars
 
 "Retrieve device name"
-daqdevname(dconf::DAQConfig) = dconf.devname
+devname(dconf::DAQConfig) = dconf.devname
 "Retrieve device IP address"
 daqdevip(dconf::DAQConfig) = dconf.ip
 "Retrieve device model"
@@ -70,7 +70,7 @@ iparameters(dev::AbstractDAQ) = dev.conf.ipars
 sparameters(dev::AbstractDAQ) = dev.conf.spars
 fparameters(dev::AbstractDAQ) = dev.conf.fpars
 
-daqdevname(dev::AbstractDAQ) = dev.conf.devname
+devname(dev::AbstractDAQ) = dev.conf.devname
 daqdevip(dev::AbstractDAQ) = dev.conf.ip
 daqdevmodel(dev::AbstractDAQ) = dev.conf.model
 daqdevserialnum(dev::AbstractDAQ) = dev.conf.sn
