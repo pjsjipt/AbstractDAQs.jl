@@ -7,7 +7,7 @@ Saves data read by a DAQ device in a HDF5 group
 
 The group where the data will be stored is specified by the parameter `h5`. 
 
-The data is stored under the device name of the daq device (`daqdevname(dev)`).
+The data is stored under the device name of the daq device (`devname(dev)`).
 
 Other parameters related to the data acquisition can be provided using the key word 
 arguments `kw`. They will be stored under the keyword name.
@@ -18,9 +18,9 @@ compatible with the HDF5.jl package.
 """
 function savedaqdata(h5, dev::AbstractDAQ, X; kw...)
 
-    devname = daqdevname(dev)
-    h5[devname] = X
-    d = h5[devname]
+    dname = devname(dev)
+    h5[dname] = X
+    d = h5[dname]
 
     for (k, v) in kw
         attributes(d)[string(k)] = v
@@ -36,7 +36,7 @@ Save device configuration. Stores information contained in the `conf::DAQConfig`
 field of the daq device. Other information can be stored using the keyword parameters
 where the keyword names are used as names in the HDF5 files.
 
-The configuration is stored under the device name (`daqdevname(dev)`). User should make
+The configuration is stored under the device name (`devname(dev)`). User should make
 sure that different devices do not have the same name.
 
 The user should ensure that the data being stored ( have types
@@ -46,10 +46,10 @@ compatible with the HDF5.jl package.
 function savedaqconfig(h5, dev::AbstractDAQ; kw...)
 
     device = string(typeof(dev))
-    devname = daqdevname(dev)
-    g = create_group(h5, devname)
+    dname = devname(dev)
+    g = create_group(h5, dname)
     g["device"] = device
-    g["devname"] = devname
+    g["devname"] = dname
     g["ip"] = daqdevip(dev)
     g["model"] = daqdevmodel(dev)
     g["sn"] = daqdevserialnum(dev)
