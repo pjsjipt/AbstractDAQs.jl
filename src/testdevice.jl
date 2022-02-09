@@ -14,7 +14,6 @@ mutable struct TestDev <: AbstractDAQ
 end
 
 
-numstring(x, n=2) = string(10^n + x)[2:end]
 function TestDev(nchans; channames="E")
 
     nz = ceil(Int, log10(nchans + 1000*eps(Float64(nchans))))

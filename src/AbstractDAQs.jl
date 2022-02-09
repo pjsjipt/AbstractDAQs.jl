@@ -25,7 +25,7 @@ abstract type AbstractDAQ <: AbstractDevice end
 abstract type AbstractPressureScanner <: AbstractDAQ end
 
 devname(dev::AbstractDevice) = dev.devname
-
+include("utils.jl")
 include("daqconfig.jl")
 include("daqtask.jl")
 include("circbuffer.jl")
