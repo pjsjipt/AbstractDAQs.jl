@@ -1,50 +1,73 @@
 # Several devices together
 
-using Dates
+export DeviceSet
 
-mutable struct DeviceSet
-    devlst::Vector{AbstractDAQ}
-    measlst::Vector{Vector{Int}}
+mutable struct DeviceSet <: AbstractDAQ
+    devname::String
+    iref::Int
+    devices::Vector{AbstractDAQ}
+    devdict::Dict{String,AbstractDAQ}
 end
 
 
-DeviceSet(devs...) = DeviceSet(AbstractDAQ[d for d in devs], collect(1:length(devs)))
+function DeviceSet(dname, devs::AbstractVector{<:AbstractDAQ}, iref=1)
 
-function startmeasurement(devs::DeviceSet, level=1, usethread=true)
+    devices = AbstractDAQ[d for d in devs]
+    devdict = Dict{String,AbstractDAQ}()
 
-    idx = devs.measlst[level]
-
-    t = now()
-    for i in idx
-        daqstart(devs.devlst[i], usethread=usethread)
+    for dev in devices
+        devdict[devname(dev)] = dev
     end
-
-    return t
+    
+    return DeviceSet(dname, iref, devices, devdict)
 end
 
-function readmeasurement(devs::DeviceSet, level=1)
 
-    idx = devs.measlst[level]
+    
+
+function daqstart(devs::DeviceSet, usethread=true)
+    for dev in devs.devices
+        daqstart(dev, usethread)
+    end
+    return
+end
+
+
+function daqread(devs::DeviceSet)
     data = Any[]
-    for i in idx
-        x,fs = daqread(devs.devlst[i])
-        push!(data, (x,fs))
+    
+    for dev in devs.devices
+        d = daqread(dev)
+        push!(data, d)
     end
-
     return data
 end
 
-function acquiremeasurement(devs::DeviceSer, level=1, usethread=true)
-
-    t = startmeasurement(devs, level, usethread)
-    data = readmeasurement(devs, level)
-
-    return t, data
+function daqacquire(devs::DeviceSet)
+    daqstart(devs, true)
+    return daqread(devs)
 end
 
+samplesread(devs::DeviceSet) = samplesread(devs.devices[devs.iref])
+isreading(devs::DeviceSet) = isreading(dev.devices[devs.iref])
+isdaqfinished(devs::DeviceSet) = isdaqfinished(dev.devices[devs.iref])
+issamplesavailable(devs::DeviceSet)=issamplesavailable(devs.devices[devs.iref])
+
+
     
-function savemeasdata(h5, t, meas, devs::DeviceSet, level=1)
-    
+function savedaqdata(h5, devs::DeviceSet, data)
+    ndevs = length(devs.devices)
+    for i in 1:ndevs
+        savedaqdata(h5, devs.devices[i], data[i][1]; fs=data[i][2])
+    end
+end
+
+function savedaqconfig(h5, devs::DeviceSet)
+
+    ndevs = length(devs.devices)
+    for dev in devs.devices
+        savedaqconfig(h5, dev)
+    end
 end
 
                         

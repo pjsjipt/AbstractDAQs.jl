@@ -70,7 +70,7 @@ iparameters(dev::AbstractDAQ) = dev.conf.ipars
 sparameters(dev::AbstractDAQ) = dev.conf.spars
 fparameters(dev::AbstractDAQ) = dev.conf.fpars
 
-devname(dev::AbstractDAQ) = dev.conf.devname
+devname(dev::AbstractDAQ) = dev.devname
 daqdevip(dev::AbstractDAQ) = dev.conf.ip
 daqdevmodel(dev::AbstractDAQ) = dev.conf.model
 daqdevserialnum(dev::AbstractDAQ) = dev.conf.sn

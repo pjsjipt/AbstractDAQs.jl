@@ -1,6 +1,7 @@
 
 
 mutable struct TestDev <: AbstractDAQ
+    devname::String
     nchans::Int
     channames::Vector{String}
     reading::Bool
@@ -14,7 +15,7 @@ mutable struct TestDev <: AbstractDAQ
 end
 
 
-function TestDev(nchans; channames="E")
+function TestDev(devname, nchans; channames="E")
 
     nz = ceil(Int, log10(nchans + 1000*eps(Float64(nchans))))
     nz = max(nz,1)
@@ -26,7 +27,7 @@ function TestDev(nchans; channames="E")
         chn = string.(channames)
     end
 
-    return TestDev(nchans, chn, false, 1000.0,
+    return TestDev(devname, nchans, chn, false, 1000.0,
                    1, 1.0, 0.01, 0, zeros(0,0), Task(_->1))
 end
 
@@ -124,16 +125,19 @@ function daqacquire(dev::TestDev)
 end
 
 
-function daqstart(dev::TestDev)
+function daqstart(dev::TestDev, usethread=true)
     t =  @async readtestsamples(dev)
+    dev.tsk = t
     return t
 end
 
 function daqread(dev::TestDev)
 
-    if !istaskdone(dev.tsk) && istaskstarted(dev.tsk)
-        wait(dev.tsk)
-    end
+    #if !istaskdone(dev.tsk) && istaskstarted(dev.tsk)
+    #    wait(dev.tsk)
+    #end
+    wait(dev.tsk)
+    #println("waiting")
 
     return dev.E, dev.rate
 end

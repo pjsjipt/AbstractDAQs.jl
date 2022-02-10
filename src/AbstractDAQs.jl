@@ -31,6 +31,6 @@ include("daqtask.jl")
 include("circbuffer.jl")
 include("hdf5io.jl")
 include("interface.jl")
+include("deviceset.jl")
 include("testdevice.jl")
-
 end
