@@ -57,16 +57,20 @@ issamplesavailable(devs::DeviceSet)=issamplesavailable(devs.devices[devs.iref])
     
 function savedaqdata(h5, devs::DeviceSet, data)
     ndevs = length(devs.devices)
+    g = create_group(h5, devname(devs))
+    attributes(g)["type"] = "DeviceSet"
+    attributes(g)["devices"] = devname.(devs.devices)
     for i in 1:ndevs
-        savedaqdata(h5, devs.devices[i], data[i][1]; fs=data[i][2])
+        savedaqdata(g, devs.devices[i], data[i][1]; fs=data[i][2])
     end
 end
 
 function savedaqconfig(h5, devs::DeviceSet)
 
     ndevs = length(devs.devices)
+    g = create_group(h5, devname(devs))
     for dev in devs.devices
-        savedaqconfig(h5, dev)
+        savedaqconfig(g, dev)
     end
 end
 
