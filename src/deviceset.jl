@@ -2,21 +2,20 @@
 
 export DeviceSet
 
-mutable struct DeviceSet <: AbstractDAQ
+mutable struct DeviceSet{DevList} <: AbstractDAQ
     devname::String
     iref::Int
-    devices::Vector{AbstractDAQ}
-    devdict::Dict{String,AbstractDAQ}
+    devices::DevList
+    devdict::Dict{String,Int}
 end
 
 
-function DeviceSet(dname, devs::AbstractVector{<:AbstractDAQ}, iref=1)
+function DeviceSet(dname, devices::DevList, iref=1) where {DevList}
 
-    devices = AbstractDAQ[d for d in devs]
-    devdict = Dict{String,AbstractDAQ}()
-
-    for dev in devices
-        devdict[devname(dev)] = dev
+    devdict = Dict{String,Int}()
+    ndev = length(devices)
+    for (i, dev) in enumerate(devices)
+        devdict[devname(dev)] = i
     end
     
     return DeviceSet(dname, iref, devices, devdict)
@@ -25,9 +24,9 @@ end
 
     
 
-function daqstart(devs::DeviceSet, usethread=true)
+function daqstart(devs::DeviceSet)
     for dev in devs.devices
-        daqstart(dev, usethread)
+        daqstart(dev)
     end
     return
 end
@@ -44,7 +43,7 @@ function daqread(devs::DeviceSet)
 end
 
 function daqacquire(devs::DeviceSet)
-    daqstart(devs, true)
+    daqstart(devs)
     return daqread(devs)
 end
 
