@@ -36,9 +36,9 @@ measdata(d::MeasData) = d.data
 measinfo(d::MeasData) = d.info
 
 import Base.getindex
-getindex(d::MeasData{T,I},ch::String) where {T<:AbstractMatrix,I} = d.data[chans[ch],:]
-getindex(d::MeasData, i::Integer) = d.data[i,:]
-getindex(d::MeasData, i::Integer,k::Integer) = d.data[i,k]
+getindex(d::MeasData{T,I},ch::String) where {T<:AbstractMatrix,I} = d.data[d.chans[ch],:]
+getindex(d::MeasData{T,I}, i::Integer) where {T<:AbstractMatrix,I} = d.data[i,:]
+getindex(d::MeasData{T,I}, i::Integer,k::Integer) where {T<:AbstractMatrix,I}= d.data[i,k]
 
 
                                                                            
