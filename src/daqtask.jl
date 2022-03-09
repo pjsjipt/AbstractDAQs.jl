@@ -10,6 +10,8 @@ mutable struct DAQTask
     thrd::Bool
     "Initial time, end time (ns) and number of frames"
     timing::NTuple{3, UInt64}
+    "Time the task started"
+    time::DateTime
     "`Task` object executing the data acquisition"
     task::Task
     """
@@ -22,7 +24,8 @@ mutable struct DAQTask
     can estimated.
 
     """
-    DAQTask() = new(0,false,false,false, (UInt64(0),UInt64(0),UInt64(0)), Task(()->0))
+    DAQTask() = new(0,false,false,false, (UInt64(0),UInt64(0),UInt64(0)),
+                    now(), Task(()->0))
 end
 
 

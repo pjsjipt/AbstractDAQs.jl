@@ -8,7 +8,7 @@ export samplingrate, settiming!
 export setdaqthread!, daqthread
 export setdaqtask!, daqtask
 export daqaddinput, daqacquire, daqacquire!, daqstart
-export daqread, daqread!, daqstop, devname
+export daqread, daqread!, daqstop, devname, devtype
 
 export daqreference, daqzero, daqconfig, daqconfigdev
 export numchannels, daqchannels
@@ -19,16 +19,22 @@ export daqdevip, daqdevmodel, daqdevserialnum, daqdevtag
 export savedaqdata, savedaqconfig
 export TestDev
 
+using Dates
+
 abstract type AbstractDevice end
 
 abstract type AbstractDAQ <: AbstractDevice end
 abstract type AbstractPressureScanner <: AbstractDAQ end
 
+
+devtype(dev) = string(typeof(dev))
 devname(dev::AbstractDevice) = dev.devname
+
 include("utils.jl")
 include("daqconfig.jl")
 include("daqtask.jl")
 include("circbuffer.jl")
+include("measdata.jl")
 include("hdf5io.jl")
 include("interface.jl")
 include("deviceset.jl")
