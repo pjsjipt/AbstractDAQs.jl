@@ -6,6 +6,7 @@ mutable struct DeviceSet{DevList} <: AbstractDAQ
     devname::String
     iref::Int
     devices::DevList
+    time::DateTime
     devdict::Dict{String,Int}
 end
 
@@ -18,13 +19,14 @@ function DeviceSet(dname, devices::DevList, iref=1) where {DevList}
         devdict[devname(dev)] = i
     end
     
-    return DeviceSet(dname, iref, devices, devdict)
+    return DeviceSet(dname, iref, devices, now(), devdict)
 end
 
 
     
 
 function daqstart(devs::DeviceSet)
+    devs.time = now()
     for dev in devs.devices
         daqstart(dev)
     end
@@ -33,13 +35,13 @@ end
 
 
 function daqread(devs::DeviceSet)
-    data = Any[]
+    data = Dict{String,AbstractMeasData}()
     
     for dev in devs.devices
         d = daqread(dev)
-        push!(data, d)
+        data[devname(d)] = d
     end
-    return data
+    return data, devs.time
 end
 
 function daqacquire(devs::DeviceSet)
@@ -55,12 +57,12 @@ issamplesavailable(devs::DeviceSet)=issamplesavailable(devs.devices[devs.iref])
 
     
 function savedaqdata(h5, devs::DeviceSet, data)
-    ndevs = length(devs.devices)
     g = create_group(h5, devname(devs))
     attributes(g)["type"] = "DeviceSet"
-    attributes(g)["devices"] = devname.(devs.devices)
-    for i in 1:ndevs
-        savedaqdata(g, devs.devices[i], data[i][1]; fs=data[i][2])
+    attributes(g)["devices"] = collect(keys(data))
+    attributes(g)["time"] = time2ms(devs.time)
+    for (k,v) in data
+        savedaqdata(g, v)
     end
 end
 
