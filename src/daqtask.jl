@@ -21,7 +21,9 @@ mutable struct DAQTask
 
     This structure stores the number of samples read and the general state of data 
     acquisition. It also provides timing measurements so that sampling frequency
-    can estimated.
+    can estimated and the time and date when the task began. 
+
+    It also stores a `Task` object that might be used for asynchronous data acquisition.
 
     """
     DAQTask() = new(0,false,false,false, (UInt64(0),UInt64(0),UInt64(0)),
@@ -40,6 +42,11 @@ See [`samplesread`](@ref) to see the number of samples already read.
 """
 isreading(task::DAQTask) = task.isreading
 
+"""
+`samplesread(task::DAQTask)`
+
+Number of samples read
+"""
 samplesread(task::DAQTask) = task.nread
 
 

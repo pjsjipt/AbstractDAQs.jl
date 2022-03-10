@@ -21,13 +21,26 @@ export TestDev
 
 using Dates
 
+"Abstract type to handle any kind of device"
 abstract type AbstractDevice end
 
+"Abstract type to handle data acquisition devices"
 abstract type AbstractDAQ <: AbstractDevice end
+
+"Abstract type to handle pressure scanners"
 abstract type AbstractPressureScanner <: AbstractDAQ end
 
 
+"Returns the type of device"
 devtype(dev) = string(typeof(dev))
+
+"""
+`devname(dev::AbstractDevice)`
+
+The device name is a string that is used to refer to a specific device.
+
+This string is used when saving data and post processing.
+"""
 devname(dev::AbstractDevice) = dev.devname
 
 include("utils.jl")

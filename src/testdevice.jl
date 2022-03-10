@@ -12,9 +12,15 @@ mutable struct TestDev <: AbstractDAQ
     t1::UInt64
     E::Matrix{Float64}
     tsk::Task
+    time::DateTime
 end
 
 
+"""
+`TestDev(devname, nchans; channames="E")`
+
+Creates a test device, useful for testing stuff.
+"""
 function TestDev(devname, nchans; channames="E")
 
     nz = ceil(Int, log10(nchans + 1000*eps(Float64(nchans))))
@@ -28,24 +34,24 @@ function TestDev(devname, nchans; channames="E")
     end
 
     return TestDev(devname, nchans, chn, false, 1000.0,
-                   1, 1.0, 0.01, 0, zeros(0,0), Task(_->1))
+                   1, 1.0, 0.01, 0, zeros(0,0), Task(_->1), now())
 end
 
 numchannels(dev::TestDev) = dev.nchans
 daqchannels(dev::TestDev) = dev.channames
 
 
-function daqaddinput(dev::TestDev, chans; channames="E")
+function daqaddinput(dev::TestDev, chans; names="E")
     nchans = length(chans)
     
     nz = ceil(Int, log10(nchans + 1000*eps(Float64(nchans))))
     nz = max(nz,1)
-    if isa(channames, AbstractString) || isa(channames, Symbol)
-        chn = string(channames) .* numstring.(1:nchans, nz)
-    elseif length(channames != nchans)
-        throw(DomainError(nchans, "`channames` should have length 1 or equal to `nchans`"))
+    if isa(names, AbstractString) || isa(names, Symbol)
+        chn = string(names) .* numstring.(1:nchans, nz)
+    elseif length(names != nchans)
+        throw(DomainError(nchans, "`names` should have length 1 or equal to `nchans`"))
     else
-        chn = string.(channames)
+        chn = string.(names)
     end
 
     dev.nchans = nchans

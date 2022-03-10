@@ -1,7 +1,9 @@
 using HDF5
 
 """
-`savedaqdata(h5, dev, X; kw...)`
+`savedaqdata(h5, dev::AbstractDAQ, X; kw...)`
+`savedaqdata(h5, X::MeasData; kw...)`
+
 
 Saves data read by a DAQ device in a HDF5 group
 

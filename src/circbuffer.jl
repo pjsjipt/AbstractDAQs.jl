@@ -1,20 +1,42 @@
 
 
 mutable struct CircMatBuffer{T} <: AbstractVector{T}
+    "Number of frames that can be stores in the buffer"
     capacity::Int
+    "Number of elements in each frame"
     width::Int
+    "Index of the first frame in the buffer"
     first::Int
+    "How many frames are in the buffer"
     length::Int
+    "Buffer itself. Each column corresponds to a frame"
     buffer::Matrix{T}
 end
 
+"""
+`CircMatBuffer{T}()`
+`CircMatBuffer{T}(width, capacity)`
+
+Creates a circular buffer with elements of type `T`. 
+It is very similar to the circular buffer implemented in the package DataStructures.jl
+
+The difference is that instead dealing with single elements, the elements are frames with
+several elements inside. The type of the elements is parametric (`T`). 
+
+The buffer itself is a matrix with elements of type `T`. The number of rows is the width
+of the buffer and corresponds to the number of objects `T` in each frames. The capacity
+of the buffer is the total number of frames that can be stored in the buffer and corresponds
+to the number of columns of the matrix.
+"""
 CircMatBuffer{T}() where {T} = CircMatBuffer{T}(0,0,1,0,Matrix{T}(undef,0,0))
 
 CircMatBuffer{T}(width, capacity) where {T} =
     CircMatBuffer{T}(capacity, width, 1, 0, zeros(T, width, capacity))
 
+"Number of objects stored in the buffer"
 Base.length(x::CircMatBuffer) = x.length
 Base.size(x::CircMatBuffer) = (x.length,)
+"Number of elements in each frame"
 bufwidth(x::CircMatBuffer) = x.width
 
 

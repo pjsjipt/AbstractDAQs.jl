@@ -25,6 +25,15 @@ Create data structure to store device configuration.
 
 Hopefuly, with the information stored in this struct, reproducible 
 data configuration of the devices can be achieved.
+
+Besides device characterization information (`ip`, `model`, `sn`, `tag`), the configuration
+is stored in three dictionaries:
+
+ * `ipars`: integer parameters
+ * `fpars`: floating point parameters
+ * `spars`: string parameters.
+
+
 """
 function DAQConfig(;devname="", ip="", model="", sn="",tag="")
     
