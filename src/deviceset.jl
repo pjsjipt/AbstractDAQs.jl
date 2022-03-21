@@ -61,7 +61,7 @@ function daqread(devs::DeviceSet)
         d = daqread(dev)
         data[devname(d)] = d
     end
-    return data, devs.time
+    return data
 end
 
 """
@@ -74,7 +74,8 @@ function daqacquire(devs::DeviceSet)
     return daqread(devs)
 end
 
-
+#import Base.getindex
+#Base.getindex
 samplesread(devs::DeviceSet) = samplesread(devs.devices[devs.iref])
 isreading(devs::DeviceSet) = isreading(dev.devices[devs.iref])
 isdaqfinished(devs::DeviceSet) = isdaqfinished(dev.devices[devs.iref])
@@ -87,11 +88,15 @@ issamplesavailable(devs::DeviceSet)=issamplesavailable(devs.devices[devs.iref])
 Save the acquired data to a path inside a HDF5 file. It will save the data of each of the 
 devices.
 """    
-function savedaqdata(h5, devs::DeviceSet, data)
+function savedaqdata(h5, devs::DeviceSet{T}, data; kw...) where {T}
     g = create_group(h5, devname(devs))
     attributes(g)["type"] = "DeviceSet"
     attributes(g)["devices"] = collect(keys(data))
     attributes(g)["time"] = time2ms(devs.time)
+    for (k,v) in kw
+        attributes(g)[string(k)] = v
+    end
+
     for (k,v) in data
         savedaqdata(g, v)
     end

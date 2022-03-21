@@ -18,7 +18,7 @@ The user should ensure that the data being stored (including attributes) have ty
 compatible with the HDF5.jl package.
 
 """
-function savedaqdata(h5, dev::AbstractDAQ, X; kw...)
+function keepsavedaqdata(h5, dev::AbstractDAQ, X; kw...)
 
     dname = devname(dev)
     h5[dname] = X
