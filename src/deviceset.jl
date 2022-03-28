@@ -1,6 +1,6 @@
 # Several devices together
 
-export DeviceSet
+export DeviceSet, MeasDataSet
 
 mutable struct DeviceSet{DevList} <: AbstractDAQ
     devname::String
@@ -33,6 +33,12 @@ function DeviceSet(dname, devices::DevList, iref=1) where {DevList}
     return DeviceSet(dname, iref, devices, now(), devdict)
 end
 
+struct MeasDataSet <: AbstractMeasData
+    devname::String
+    devtype::String
+    time::DateTime
+    data::Dict{String,MeasData}
+end
 
     
 """
@@ -55,13 +61,14 @@ Read the data from every device in `DeviceSet`. It stores this data in a diction
 where the key is the device name and the value is the data.
 """
 function daqread(devs::DeviceSet)
-    data = Dict{String,AbstractMeasData}()
+    data = Dict{String,MeasData}()
     
     for dev in devs.devices
         d = daqread(dev)
         data[devname(d)] = d
     end
-    return data
+    
+    return MeasDataSet(devname(devs), "DeviceSet", devs.time, data)
 end
 
 """
@@ -93,6 +100,27 @@ function savedaqdata(h5, devs::DeviceSet{T}, data; kw...) where {T}
     attributes(g)["type"] = "DeviceSet"
     attributes(g)["devices"] = collect(keys(data))
     attributes(g)["time"] = time2ms(devs.time)
+    for (k,v) in kw
+        attributes(g)[string(k)] = v
+    end
+
+    for (k,v) in data
+        savedaqdata(g, v)
+    end
+end
+
+
+"""
+`savedaqdata(h5, devs::DeviceSet, data)`
+
+Save the acquired data to a path inside a HDF5 file. It will save the data of each of the 
+devices.
+"""    
+function savedaqdata(h5, data::MeasDataSet; kw...) where {T}
+    g = create_group(h5, data.devname)
+    attributes(g)["type"] = "DeviceSet"
+    attributes(g)["devices"] = collect(keys(data))
+    attributes(g)["time"] = time2ms(data.time)
     for (k,v) in kw
         attributes(g)[string(k)] = v
     end
