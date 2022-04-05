@@ -13,6 +13,7 @@ mutable struct TestDev <: AbstractDAQ
     E::Matrix{Float64}
     tsk::Task
     time::DateTime
+    chanidx::Dict{String,Int}
 end
 
 
@@ -33,8 +34,13 @@ function TestDev(devname, nchans; channames="E")
         chn = string.(channames)
     end
 
+    chanidx = Dict{String,Int}()
+    for (i,c) in enumerate(chn)
+        chanidx[c] = i
+    end
+    
     return TestDev(devname, nchans, chn, false, 1000.0,
-                   1, 1.0, 0.01, 0, zeros(0,0), Task(_->1), now())
+                   1, 1.0, 0.01, 0, zeros(0,0), Task(_->1), now(), chanidx)
 end
 
 numchannels(dev::TestDev) = dev.nchans
@@ -56,7 +62,11 @@ function daqaddinput(dev::TestDev, chans; names="E")
 
     dev.nchans = nchans
     dev.channames = chn
-
+    chanidx = Dict{String,Int}()
+    for (i,c) in enumerate(chn)
+        chanidx[c] = i
+    end
+    dev.chanidx = chanidx
     return
 end
 
@@ -115,7 +125,7 @@ function filldata!(dev)
 end
 
 function readtestsamples(dev::TestDev)
-
+    
     dev.reading = true
     ttot = dev.nsamples / dev.rate
     dev.t1 = time_ns()
@@ -126,12 +136,15 @@ function readtestsamples(dev::TestDev)
 end
 
 function daqacquire(dev::TestDev)
+    dev.time = now()
     readtestsamples(dev)
-    return dev.E, dev.rate
+    return MeasData{Matrix{Float64}}(dev.devname, "TestDev", dev.time, dev.rate, dev.E,
+                                     dev.chanidx)
 end
 
 
 function daqstart(dev::TestDev, usethread=true)
+    dev.time = now()
     t =  @async readtestsamples(dev)
     dev.tsk = t
     return t
@@ -145,7 +158,8 @@ function daqread(dev::TestDev)
     wait(dev.tsk)
     #println("waiting")
 
-    return dev.E, dev.rate
+    return MeasData{Matrix{Float64}}(dev.devname, "TestDev", dev.time, dev.rate, dev.E,
+                                     dev.chanidx)
 end
 
 
