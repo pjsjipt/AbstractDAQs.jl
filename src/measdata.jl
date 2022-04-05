@@ -19,7 +19,7 @@ struct MeasData{T} <: AbstractMeasData
     "Time of data aquisition"
     time::DateTime
     "Sampling rate (Hz)"
-    fs::Float64
+    rate::Float64
     "Data acquired"
     data::T
     "Index of each channel"
@@ -42,7 +42,7 @@ devtype(d::MeasData) = d.devtype
 meastime(d::AbstractMeasData) = d.time
 
 "What was the sampling rate of the data acquisition?"
-samplingrate(d::MeasData) = d.fs
+samplingrate(d::MeasData) = d.rate
 
 "Access to the data acquired"
 measdata(d::MeasData) = d.data
