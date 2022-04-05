@@ -1,6 +1,6 @@
 
 export AbstractMeasData, MeasData
-export meastime, samplingrate, measdata, measinfo
+export meastime, samplingrate, measdata
 
 
 abstract type AbstractMeasData end
@@ -11,7 +11,7 @@ abstract type AbstractMeasData end
 Structure to store data acquired from a DAQ device. It also stores metadata related to 
 the DAQ device, data acquisition process and daq channels.
 """
-struct MeasData{T,Info} <: AbstractMeasData
+struct MeasData{T} <: AbstractMeasData
     "Device that generated the data"
     devname::String
     "Type of device"
@@ -22,8 +22,6 @@ struct MeasData{T,Info} <: AbstractMeasData
     fs::Float64
     "Data acquired"
     data::T
-    "Other information"
-    info::Info
     "Index of each channel"
     chans::Dict{String,Int}
 end
@@ -49,8 +47,6 @@ samplingrate(d::MeasData) = d.fs
 "Access to the data acquired"
 measdata(d::MeasData) = d.data
 
-"Other information"
-measinfo(d::MeasData) = d.info
 
 import Base.getindex
 

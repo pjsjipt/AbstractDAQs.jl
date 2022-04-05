@@ -38,7 +38,6 @@ function savedaqdata(h5, dev::AbstractDAQ, X::MeasData; kw...)
     attributes(d)["devtype"] = devtype(X)
     attributes(d)["time"] = AbstractDAQs.time2ms(meastime(X))
     attributes(d)["fs"] = samplingrate(X)
-    attributes(d)["info"] = X.info
     attributes(d)["chans"] = collect(keys(X.chans))[sortperm(collect(values(X.chans)))]
     
     for (k,v) in kw
