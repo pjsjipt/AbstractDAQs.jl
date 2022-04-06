@@ -23,14 +23,14 @@ struct MeasData{T} <: AbstractMeasData
     "Data acquired"
     data::T
     "Index of each channel"
-    chans::Dict{String,Int}
+    chans::OrderedDict{String,Int}
 end
 
 #DateTime(Dates.UTInstant(Millisecond(d.t)))
 "Convert a DateTime object to ms"
 time2ms(t::DateTime) = t.instant.periods.value
 "Convert a time in ms to DateTimeObject"
-ms2time(t::Int64) = DateTime(Dates.UTInstant{Millisecond}(Millisecond(ms)))
+ms2time(ms::Int64) = DateTime(Dates.UTInstant{Millisecond}(Millisecond(ms)))
 
 "Device name that acquired the data"
 devname(d::MeasData) = d.devname
@@ -46,7 +46,7 @@ samplingrate(d::MeasData) = d.rate
 
 "Access to the data acquired"
 measdata(d::MeasData) = d.data
-
+daqchannels(d::MeasData) = collect(keys(d.chans))
 
 import Base.getindex
 
@@ -58,6 +58,8 @@ getindex(d::MeasData{T}, i::Integer) where {T<:AbstractMatrix} = view(d.data, i,
 getindex(d::MeasData{T}, i::Integer,k::Integer) where {T<:AbstractMatrix}= d.data[i,k]
 "Access the data in channel name `ch` at time index `k`"
 getindex(d::MeasData{T}, ch::String,k::Integer) where {T<:AbstractMatrix}= d.data[d.chans[ch],k]
+
+getindex(d::MeasData) = d.data
 
 
                                                                            

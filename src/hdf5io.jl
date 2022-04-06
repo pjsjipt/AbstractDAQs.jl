@@ -1,7 +1,6 @@
 using HDF5
 
 """
-`savedaqdata(h5, dev::AbstractDAQ, X; kw...)`
 `savedaqdata(h5, X::MeasData; kw...)`
 
 
@@ -18,35 +17,6 @@ The user should ensure that the data being stored (including attributes) have ty
 compatible with the HDF5.jl package.
 
 """
-function keepsavedaqdata(h5, dev::AbstractDAQ, X; kw...)
-
-    dname = devname(dev)
-    h5[dname] = X
-    d = h5[dname]
-
-    for (k, v) in kw
-        attributes(d)[string(k)] = v
-    end
-    return
-end
-
-function savedaqdata(h5, dev::AbstractDAQ, X::MeasData; kw...)
-    dname = devname(X)
-    h5[dname] = measdata(X)
-    d = h5[dname]
-    attributes(d)["devname"] = dname
-    attributes(d)["devtype"] = devtype(X)
-    attributes(d)["time"] = AbstractDAQs.time2ms(meastime(X))
-    attributes(d)["rate"] = samplingrate(X)
-    attributes(d)["chans"] = collect(keys(X.chans))[sortperm(collect(values(X.chans)))]
-    
-    for (k,v) in kw
-        attributes(d)[string(k)] = v
-    end
-    return
-end
-
-
 function savedaqdata(h5, X::MeasData; kw...)
     dname = devname(X)
     h5[dname] = measdata(X)
@@ -55,8 +25,7 @@ function savedaqdata(h5, X::MeasData; kw...)
     attributes(d)["devtype"] = devtype(X)
     attributes(d)["time"] = AbstractDAQs.time2ms(meastime(X))
     attributes(d)["rate"] = samplingrate(X)
-    attributes(d)["info"] = X.info
-    attributes(d)["chans"] = collect(keys(X.chans))[sortperm(collect(values(X.chans)))]
+    attributes(d)["chans"] = collect(keys(X.chans))
     
     for (k,v) in kw
         attributes(d)[string(k)] = v
@@ -106,4 +75,102 @@ function savedaqconfig(h5, dev::AbstractDAQ; kw...)
     end
     
     return 
+end
+
+function readdaqdata_dev(h, dtype, attr)
+
+    if "devname" ∈ attr
+        dname = read(attributes(h)["devname"])
+    else
+        dname = "unknown"
+    end
+
+    if "time" ∈ attr
+        t = ms2time(read(attributes(h)["time"]))
+    else
+        t = now()
+    end
+    
+    if "rate" ∈ attr
+        rate = read(attributes(h)["rate"])
+    elseif "fs" ∈ attr
+        rate = read(attributes(h)["fs"])
+    else
+        rate = 1.0
+    end
+
+    data = read(h)
+
+    nchans = size(data,1)
+    
+    if "chans" ∈ attr
+        chans = read(attributes(h)["chans"])
+    else
+        chans = "C" .* string.(1:nchans)
+    end
+
+    ch = OrderedDict{String,Int}()
+    for (i,c) in enumerate(chans)
+        ch[c] = i
+    end
+    
+    return MeasData(dname, dtype, t, rate, data, ch)
+end
+
+function readdaqdata_devset(h, dtype, attr)
+
+    if !("devices" ∈ attr)
+        error("There should be a 'devices' attribute in HDF5 file for it to be a valid MeasDataSet object")
+    else
+        devices = read(attributes(h)["devices"])
+    end
+        
+    if "devname" ∈ attr
+        dname = read(attributes(h)["devname"])
+    else
+        dname = "unknown"
+    end
+    
+    if "time" ∈ attr
+        t = ms2time(read(attributes(h)["time"]))
+    else
+        t = now()
+    end
+
+    data = OrderedDict{String,MeasData}()
+
+    for dev in devices
+        data[dev] = readdaqdata(h[dev])
+    end
+    
+    
+    return MeasDataSet(dname, dtype, t, data)
+end
+
+
+"""
+`readdaqdata(h)`
+
+Reads data acquisition data from a HDF5 file located at `h`. It will recognize
+whether the data is a `MeasData` or `MeasDataSet` and act accordingly.
+
+"""
+function readdaqdata(h)
+
+    attr = collect(keys(attributes(h)))
+    
+    if "devtype" ∈ attr
+        dtype = read(attributes(h)["devtype"])
+    elseif "type" ∈ attr
+        dtype = read(attributes(h)["type"])
+    else
+        error("HDF5 section NOT and MeasData! No 'devtype' attribute!")
+    end
+
+    if dtype == "DeviceSet"
+        return readdaqdata_devset(h, dtype, attr)
+    else
+        return readdaqdata_dev(h, dtype, attr)
+    end
+
 end

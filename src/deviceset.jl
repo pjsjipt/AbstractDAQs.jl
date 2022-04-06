@@ -7,7 +7,7 @@ mutable struct DeviceSet{DevList} <: AbstractDAQ
     iref::Int
     devices::DevList
     time::DateTime
-    devdict::Dict{String,Int}
+    devdict::OrderedDict{String,Int}
 end
 
 """
@@ -24,7 +24,7 @@ is ongoing or how many samples have been read.
 """
 function DeviceSet(dname, devices::DevList, iref=1) where {DevList}
 
-    devdict = Dict{String,Int}()
+    devdict = OrderedDict{String,Int}()
     ndev = length(devices)
     for (i, dev) in enumerate(devices)
         devdict[devname(dev)] = i
@@ -52,8 +52,11 @@ struct MeasDataSet <: AbstractMeasData
     devname::String
     devtype::String
     time::DateTime
-    data::Dict{String,MeasData}
+    data::OrderedDict{String,AbstractMeasData}
 end
+
+devname(d::MeasDataSet) = d.devname
+devtype(d::MeasDataSet) = d.devtype
 
     
 """
@@ -76,7 +79,7 @@ Read the data from every device in `DeviceSet`. It stores this data in a diction
 where the key is the device name and the value is the data.
 """
 function daqread(devs::DeviceSet)
-    data = Dict{String,MeasData}()
+    data = OrderedDict{String,MeasData}()
     
     for dev in devs.devices
         d = daqread(dev)
@@ -112,7 +115,7 @@ devices.
 """    
 function savedaqdata(h5, devs::DeviceSet{T}, data; kw...) where {T}
     g = create_group(h5, devname(devs))
-    attributes(g)["type"] = "DeviceSet"
+    attributes(g)["devtype"] = "DeviceSet"
     attributes(g)["devices"] = collect(keys(data))
     attributes(g)["time"] = time2ms(devs.time)
     for (k,v) in kw
@@ -133,7 +136,8 @@ devices.
 """    
 function savedaqdata(h5, data::MeasDataSet; kw...) where {T}
     g = create_group(h5, data.devname)
-    attributes(g)["type"] = "DeviceSet"
+    attributes(g)["devname"] = dev.devname
+    attributes(g)["devtype"] = "DeviceSet"
     attributes(g)["devices"] = collect(keys(data.data))
     attributes(g)["time"] = time2ms(data.time)
     for (k,v) in kw

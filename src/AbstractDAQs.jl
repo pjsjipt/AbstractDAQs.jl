@@ -16,11 +16,12 @@ export CircMatBuffer, bufwidth
 export nextbuffer, isfull, isempty, flatten, flatten!, capacity
 export DAQConfig, iparameters, fparameters, sparameters
 export daqdevip, daqdevmodel, daqdevserialnum, daqdevtag
-export savedaqdata, savedaqconfig
+export savedaqdata, savedaqconfig, readdaqdata 
 export TestDev
 
 using Dates
 
+import DataStructures: OrderedDict
 "Abstract type to handle any kind of device"
 abstract type AbstractDevice end
 
