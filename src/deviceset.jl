@@ -3,10 +3,15 @@
 export DeviceSet, MeasDataSet
 
 mutable struct DeviceSet{DevList} <: AbstractDAQ
+    "Device name associated to this `DeviceSet`"
     devname::String
+    "Index of most relevant measurement device"
     iref::Int
+    "List of devices"
     devices::DevList
+    "Starting time of data acquisition"
     time::DateTime
+    "Map from device name to device index in `devices`."
     devdict::OrderedDict{String,Int}
 end
 
@@ -33,7 +38,14 @@ function DeviceSet(dname, devices::DevList, iref=1) where {DevList}
     return DeviceSet(dname, iref, devices, now(), devdict)
 end
 
+
 import Base.getindex
+
+"""
+`dev[i]`
+
+Return the `i`-th device of a device set
+"""
 getindex(dev::DeviceSet, i) = dev.devices[i]
 function getindex(devset::DeviceSet, dname::AbstractString)
     for dev in devset.devices
@@ -47,18 +59,128 @@ function getindex(devset::DeviceSet, dname::AbstractString)
     throw(KeyError(dname))
 end
 
+"""
+`MeasDataSet(devname, devtype, time, data)`
 
+Stores the data acquired by a `DeviceSet`.
+"""
 struct MeasDataSet <: AbstractMeasData
+    "Device name"
     devname::String
+    "Device type (`DeviceSet`)"
     devtype::String
+    "Data acquisition time"
     time::DateTime
+    "Data acquired by each device in the `DeviceSet`"
     data::OrderedDict{String,AbstractMeasData}
 end
 
+"""
+`devname(d::MeasDataSet)`
+
+Return the device name that acquired the data.
+"""
 devname(d::MeasDataSet) = d.devname
+
+"""
+`devtype(d::MeasDataSet)`
+
+Return the device type that acquired the data ([`DeviceSet`](@ref) in this case).
+"""
 devtype(d::MeasDataSet) = d.devtype
 
+"""
+`meastime(d::MeasDataSet)`
+
+Return the [`DateTime`](@ref) when the device started to acquire the data from 
+a [`DeviceSet`](@ref).
+"""
+meastime(d::MeasDataSet) = d.time
+
+"""
+`d["some/path/to/measurements"]`
+
+Retrieve data acquired stored in a [`MeasDataSet`](@ref).
+
+The data,  in this case, was acquired by several devices that 
+make up a [`DeviceSet](@ref). Thus sub-device might be another [`MeasDataSet`](@ref)
+or, more commonly, a [`MeasData`](@ref) structure. 
+
+As an example, imagine that the [`DeviceSet`](@ref) is madeup of `dev1` and `dev2` 
+devices. 
+
+```
+d["dev1"]
+``` 
+
+returns the data acquired by `dev1`. To get a specific channel, you can use
+
+```
+d["dev1/chanx"]
+```
+
+and this will return the value stored by channel `chanx` of `dev1`.
+
+The channel can be specified independently as in the following example:
+
+```
+d["dev1", "chanx"]
+```
+
+or it can be specified by index:
+
+```
+d["dev1", 3]
+```
+
+(assuming `chanx` corresponds do channel 3)
+
+In both of last cases, the indexing is forwarded to the `getindex` method for
+[`MeasData`](@ref) for data retrieval.
+
+"""
+function getindex(d::MeasDataSet, path::String)
+    println(path)
+    p = split(path, '/')
+    dev = p[1]
+    if length(p) == 1
+        return d.data[dev]
+    else
+        return d.data[dev][join(p[2:end], '/')]
+    end
     
+end
+
+function getindex(d::MeasDataSet, path::String, idx...)
+    p = split(path, '/')
+    dev = p[1]
+    dev = p[1]
+    if length(p) == 1
+        return getindex(d.data[dev], idx...)
+    else
+        return getindex(d.data[dev], join(p[2:end], '/'), idx...)
+    end
+end
+
+"""
+`daqchannels(d::MeasDataSet)`
+
+Return channel names associated with each device that is acquiring data. 
+The device name is prepended to the channel name separated by a '/'.
+"""
+function daqchannels(d::MeasDataSet)
+    chans = String[]
+    for (k,v) in d.data
+        devchans = daqchannels(v)
+        for c in devchans
+            push!(chans, k * "/" * c)
+        end
+    end
+    return chans
+end
+
+
+
 """
 `daqstart(devs::DeviceSet)`
 
