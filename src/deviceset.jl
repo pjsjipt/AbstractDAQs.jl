@@ -33,6 +33,21 @@ function DeviceSet(dname, devices::DevList, iref=1) where {DevList}
     return DeviceSet(dname, iref, devices, now(), devdict)
 end
 
+import Base.getindex
+getindex(dev::DeviceSet, i) = dev.devices[i]
+function getindex(devset::DeviceSet, dname::AbstractString)
+    for dev in devset.devices
+        if devname(dev) == dname
+            return dev
+        end
+    end
+
+    # If we got here, this the actuator doesn't exist
+    # throw an exception:
+    throw(KeyError(dname))
+end
+
+
 struct MeasDataSet <: AbstractMeasData
     devname::String
     devtype::String

@@ -51,9 +51,9 @@ measdata(d::MeasData) = d.data
 import Base.getindex
 
 "Access the data in channel name `ch`"
-getindex(d::MeasData{T},ch::String) where {T<:AbstractMatrix} = d.data[d.chans[ch],:]
+getindex(d::MeasData{T},ch::String) where {T<:AbstractMatrix}=view(d.data,d.chans[ch],:)
 "Access the data in channel index `i`"
-getindex(d::MeasData{T}, i::Integer) where {T<:AbstractMatrix} = d.data[i,:]
+getindex(d::MeasData{T}, i::Integer) where {T<:AbstractMatrix} = view(d.data, i, :)
 "Access the data in channel index `i` at time index `k`"
 getindex(d::MeasData{T}, i::Integer,k::Integer) where {T<:AbstractMatrix}= d.data[i,k]
 "Access the data in channel name `ch` at time index `k`"
