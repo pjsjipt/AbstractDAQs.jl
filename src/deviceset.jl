@@ -258,7 +258,7 @@ devices.
 """    
 function savedaqdata(h5, data::MeasDataSet; kw...) where {T}
     g = create_group(h5, data.devname)
-    attributes(g)["devname"] = dev.devname
+    attributes(g)["devname"] = data.devname
     attributes(g)["devtype"] = "DeviceSet"
     attributes(g)["devices"] = collect(keys(data.data))
     attributes(g)["time"] = time2ms(data.time)
