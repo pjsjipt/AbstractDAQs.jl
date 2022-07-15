@@ -140,7 +140,6 @@ In both of last cases, the indexing is forwarded to the `getindex` method for
 
 """
 function getindex(d::MeasDataSet, path::String)
-    println(path)
     p = split(path, '/')
     dev = p[1]
     if length(p) == 1
